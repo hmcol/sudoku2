@@ -21,7 +21,7 @@ fn app() -> Html {
             <VideoDetails video={video.clone()} />
         }
     });
-    
+
     html! {
         <div class={classes!("app")}>
             <h1>{ "RustConf Explorer" }</h1>
