@@ -23,7 +23,7 @@ fn app() -> Html {
     });
     
     html! {
-        <div class={classes!("scoop")}>
+        <div class={classes!("app")}>
             <h1>{ "RustConf Explorer" }</h1>
             <div>
                 <h3>{"Videos to watch"}</h3>
