@@ -1,5 +1,3 @@
-use crate::sudoku::board::Cell;
-
 macro_rules! TypeSet {
     ($ty:ident $ls:ident = $($x:ident)+) => {
         #[derive(Clone, Copy, Eq, PartialEq, Debug, Hash)]

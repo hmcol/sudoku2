@@ -2,7 +2,10 @@ use std::collections::HashSet;
 
 use yew::prelude::*;
 
-use crate::sudoku::board::{Board, Cell, CellContent, Digit, DIGITS};
+use crate::sudoku::{
+    board::{Board, Cell, CellContent},
+    id::{Digit, DIGITS},
+};
 
 // use crate::sudoku::{Board, Cell};
 
