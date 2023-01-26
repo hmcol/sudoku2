@@ -1,6 +1,8 @@
-use std::collections::{HashMap};
-
-use super::{id::*, cell::Cell};
+use super::{
+    cell::Cell,
+    id::{CellId, Digit, BOXES, CELLS},
+};
+use std::collections::HashMap;
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Board {

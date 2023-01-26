@@ -1,13 +1,10 @@
-use std::collections::HashSet;
-
-use yew::prelude::*;
-
 use crate::sudoku::{
     board::Board,
-    id::{Digit, DIGITS}, cell::{Cell, CellContent},
+    cell::{Cell, CellContent},
+    id::{Digit, DIGITS},
 };
-
-// use crate::sudoku::{Board, Cell};
+use std::collections::HashSet;
+use yew::prelude::*;
 
 #[function_component(App)]
 pub fn app() -> Html {

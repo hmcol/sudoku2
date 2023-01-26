@@ -1,6 +1,5 @@
+use super::id::{CellId, Digit, DIGITS};
 use std::collections::HashSet;
-
-use super::id::{Digit, CellId, DIGITS};
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub enum CellContent {
@@ -17,7 +16,7 @@ pub struct Cell {
 impl Cell {
     pub fn new(id: CellId) -> Cell {
         let notes = HashSet::from_iter(DIGITS);
-
+        
         Cell {
             id,
             content: CellContent::Notes(notes),
