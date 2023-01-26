@@ -3,8 +3,8 @@ use std::collections::HashSet;
 use yew::prelude::*;
 
 use crate::sudoku::{
-    board::{Board, Cell, CellContent},
-    id::{Digit, DIGITS},
+    board::Board,
+    id::{Digit, DIGITS}, cell::{Cell, CellContent},
 };
 
 // use crate::sudoku::{Board, Cell};
