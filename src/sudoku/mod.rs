@@ -1,3 +1,4 @@
 pub mod board;
 pub mod cell;
-pub mod id;
+pub mod pos;
+pub mod digit;

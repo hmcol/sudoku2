@@ -1,23 +1,27 @@
+use std::collections::HashSet;
+
 use crate::sudoku::{
     board::Board,
-    cell::{Cell, CellContent},
-    id::{Digit, DIGITS},
+    cell::{CellContent, CellData},
+    digit::Digit,
+    pos::{Box, Cell, CELLS_BY_BOX},
 };
-use std::collections::HashSet;
 use yew::prelude::*;
 
-#[function_component(App)]
-pub fn app() -> Html {
-    let board = use_state(|| {
+#[function_component]
+pub fn App() -> Html {
+    let board_handler = use_state(|| {
         Board::from_string(
             "607005010580007900000060000005000009000936000300000400000080000003600094050200806",
         )
     });
 
+    let board = (*board_handler).clone();
+
     html! {
         <div class={classes!("app")}>
             <Grid
-                board={(*board).clone()}
+                {board}
                 // selectedCells={this.state.selectedCells}
                 // result={this.state.result}
                 // focus={this.state.focus}
@@ -51,15 +55,14 @@ struct GridProps {
     board: Board,
 }
 
-#[function_component(Grid)]
-fn grid(props: &GridProps) -> Html {
-    let board = &props.board;
-
-    let boxes = board.boxes().map(|id_box| {
-        let cells = id_box.map(Clone::clone);
+#[function_component]
+fn Grid(props: &GridProps) -> Html {
+    let boxes = Box::list().map(|box_id| {
+        let board = props.board.clone();
+        let cells = CELLS_BY_BOX[box_id.as_index()];
 
         html! {
-            <BoxComponent cells={cells} />
+            <BoxComponent {board} {cells} />
         }
     });
 
@@ -72,16 +75,18 @@ fn grid(props: &GridProps) -> Html {
 
 #[derive(Properties, PartialEq)]
 struct BoxProps {
+    board: Board,
     cells: [Cell; 9],
+    // children: Children,
 }
 
-#[function_component(BoxComponent)]
-fn box_component(props: &BoxProps) -> Html {
-    let cells = props.cells.clone();
+#[function_component]
+fn BoxComponent(props: &BoxProps) -> Html {
+    let cells = props.cells.map(|cell| {
+        let data = props.board.get_data(cell).clone();
 
-    let cells = cells.map(|cell| {
         html! {
-            <CellComponent cell={cell} />
+            <CellComponent {data} />
         }
     });
 
@@ -94,22 +99,20 @@ fn box_component(props: &BoxProps) -> Html {
 
 #[derive(Properties, PartialEq)]
 struct CellProps {
-    cell: Cell,
+    data: CellData,
 }
 
-#[function_component(CellComponent)]
-fn cell_component(props: &CellProps) -> Html {
-    let content = props.cell.content.clone();
-
-    let content = match content {
+#[function_component]
+fn CellComponent(props: &CellProps) -> Html {
+    let content = match props.data.content.clone() {
         CellContent::Digit(digit, given) => {
             html! {
-                <CellDigit digit={digit} given={given} />
+                <CellDigit {digit} {given} />
             }
         }
         CellContent::Notes(notes) => {
             html! {
-                <CellNotes notes={notes} />
+                <CellNotes {notes} />
             }
         }
     };
@@ -127,10 +130,10 @@ struct CellDigitProps {
     given: bool,
 }
 
-#[function_component(CellDigit)]
-fn cell_digit(props: &CellDigitProps) -> Html {
-    let digit = props.digit.to_string();
+#[function_component]
+fn CellDigit(props: &CellDigitProps) -> Html {
     let given = props.given.then_some("given");
+    let digit = props.digit.to_string();
 
     html! {
         <div class={classes!("cell-digit", given)}>
@@ -144,13 +147,13 @@ struct CellNotesProps {
     notes: HashSet<Digit>,
 }
 
-#[function_component(CellNotes)]
-fn cell_notes(props: &CellNotesProps) -> Html {
-    let notes = props.notes.clone();
+#[function_component]
+fn CellNotes(props: &CellNotesProps) -> Html {
+    let notes = Digit::list().map(|digit| {
+        let is_shown = props.notes.contains(&digit);
 
-    let notes = DIGITS.map(|digit| {
         html! {
-            <Note digit={digit} is_shown={notes.contains(&digit)} />
+            <Note {digit} {is_shown} />
         }
     });
 
@@ -167,8 +170,8 @@ struct NoteProps {
     is_shown: bool,
 }
 
-#[function_component(Note)]
-fn note(props: &NoteProps) -> Html {
+#[function_component]
+fn Note(props: &NoteProps) -> Html {
     let digit = props.digit.to_string();
     let shown = props.is_shown.then_some("shown");
 

@@ -1,5 +1,6 @@
-use super::id::{CellId, Digit, DIGITS};
 use std::collections::HashSet;
+
+use super::{digit::Digit, pos::Cell};
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub enum CellContent {
@@ -8,23 +9,21 @@ pub enum CellContent {
 }
 
 #[derive(Clone, Eq, PartialEq, Debug)]
-pub struct Cell {
-    pub id: CellId,
+pub struct CellData {
+    pub id: Cell,
     pub content: CellContent,
 }
 
-impl Cell {
-    pub fn new(id: CellId) -> Cell {
-        let notes = HashSet::from_iter(DIGITS);
-        
-        Cell {
+impl CellData {
+    pub fn new(id: Cell) -> CellData {
+        CellData {
             id,
-            content: CellContent::Notes(notes),
+            content: CellContent::Notes(HashSet::from_iter(Digit::list())),
         }
     }
 
-    pub fn new_given(id: CellId, digit: Digit) -> Cell {
-        Cell {
+    pub fn new_given(id: Cell, digit: Digit) -> CellData {
+        CellData {
             id,
             content: CellContent::Digit(digit, true),
         }
