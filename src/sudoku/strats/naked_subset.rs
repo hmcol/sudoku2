@@ -10,40 +10,22 @@ use crate::sudoku::{
 
 use super::{Strategy, StrategyResult};
 
-#[derive(Clone, Copy, Debug)]
-pub struct NakedPair;
+pub const NAKED_PAIR: Strategy = Strategy {
+    name: "Naked Pair",
+    find: find_naked_subset::<2>,
+};
 
-impl Strategy for NakedPair {
-    const NAME: &'static str = "Naked Pair";
+pub const NAKED_TRIPLE: Strategy = Strategy {
+    name: "Naked Triple",
+    find: find_naked_subset::<3>,
+};
 
-    fn apply(board: &Board) -> StrategyResult {
-        naked_subset::<2>(board)
-    }
-}
+pub const NAKED_QUAD: Strategy = Strategy {
+    name: "Naked Quad",
+    find: find_naked_subset::<4>,
+};
 
-#[derive(Clone, Copy, Debug)]
-pub struct NakedTriple;
-
-impl Strategy for NakedTriple {
-    const NAME: &'static str = "Naked triple";
-
-    fn apply(board: &Board) -> StrategyResult {
-        naked_subset::<3>(board)
-    }
-}
-
-#[derive(Clone, Copy, Debug)]
-pub struct NakedQuad;
-
-impl Strategy for NakedQuad {
-    const NAME: &'static str = "Naked quad";
-
-    fn apply(board: &Board) -> StrategyResult {
-        naked_subset::<4>(board)
-    }
-}
-
-fn naked_subset<const N: usize>(board: &Board) -> StrategyResult {
+fn find_naked_subset<const N: usize>(board: &Board) -> StrategyResult {
     let mut result = StrategyResult::default();
 
     for unit in CELLS_BY_UNIT {

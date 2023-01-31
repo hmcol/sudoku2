@@ -1,14 +1,10 @@
-use crate::sudoku::{board::Board, pos::Candidate};
+use crate::sudoku::pos::Candidate;
 
 use super::{Strategy, StrategyResult};
 
-#[derive(Clone, Copy, Debug)]
-pub struct ReviseNotes;
-
-impl Strategy for ReviseNotes {
-    const NAME: &'static str = "Revise Notes";
-
-    fn apply(board: &Board) -> StrategyResult {
+pub const REVISE_NOTES: Strategy = Strategy {
+    name: "Revise Notes",
+    find: |board| {
         let mut result = StrategyResult::default();
 
         for cell in board.iter_unsolved_cells() {
@@ -25,5 +21,5 @@ impl Strategy for ReviseNotes {
         }
 
         result
-    }
-}
+    },
+};

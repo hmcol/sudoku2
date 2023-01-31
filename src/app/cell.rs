@@ -3,7 +3,9 @@ use std::collections::HashSet;
 use log::info;
 use yew::prelude::*;
 
-use crate::sudoku::{pos::Cell, digit::Digit, board::Board, cell::CellContent};
+use crate::sudoku::{board::Board, cell::CellContent, digit::Digit, pos::Cell};
+
+use super::{view::View, ClickCallbacks};
 
 #[derive(Properties, PartialEq)]
 pub struct CellProps {
@@ -13,6 +15,7 @@ pub struct CellProps {
 #[function_component]
 pub fn CellComponent(props: &CellProps) -> Html {
     let board = use_context::<Board>().unwrap();
+    let callbacks = use_context::<ClickCallbacks>().unwrap();
 
     let cell = props.cell;
 
@@ -29,10 +32,7 @@ pub fn CellComponent(props: &CellProps) -> Html {
         }
     };
 
-
-    let on_click: Callback<MouseEvent> = Callback::from(move |_| {
-        info!("click on cell {cell}")
-    });
+    let on_click = Callback::<MouseEvent>::from(move |_| callbacks.on_click_cell.emit(cell));
 
     html! {
         <div class={classes!("cell")}
@@ -51,12 +51,21 @@ struct CellDigitProps {
 
 #[function_component]
 fn CellDigit(props: &CellDigitProps) -> Html {
+    let view = use_context::<View>().unwrap();
+    let callbacks = use_context::<ClickCallbacks>().unwrap();
+
+    let digit = props.digit;
+
     let given = props.given.then_some("given");
-    let digit = props.digit.to_string();
+    let focus = (view.focus_digit == Some(digit)).then_some("focus");
+
+    let on_click = Callback::<MouseEvent>::from(move |_| callbacks.on_click_digit.emit(digit));
 
     html! {
-        <div class={classes!("cell-digit", given)}>
-            { digit }
+        <div class={classes!("cell-digit", given, focus)}
+            onclick={on_click}
+        >
+            { digit.to_string() }
         </div>
     }
 }

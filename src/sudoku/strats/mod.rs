@@ -2,9 +2,9 @@ use std::fmt::Debug;
 
 use crate::sudoku::board::Board;
 
-use self::naked_subset::{NakedPair, NakedQuad, NakedTriple};
-use self::revise_notes::ReviseNotes;
-use self::singles::{FullHouse, HiddenSingle, NakedSingle};
+use self::naked_subset::{NAKED_PAIR, NAKED_QUAD, NAKED_TRIPLE};
+use self::revise_notes::REVISE_NOTES;
+use self::singles::{FULL_HOUSE, HIDDEN_SINGLE, NAKED_SINGLE};
 
 use super::pos::Candidate;
 
@@ -13,11 +13,6 @@ mod revise_notes;
 mod singles;
 
 type StrategyFn = fn(&Board) -> StrategyResult;
-
-trait Strategy: Copy + Debug {
-    const NAME: &'static str;
-    fn apply(board: &Board) -> StrategyResult;
-}
 
 #[derive(Clone, Eq, PartialEq, Debug, Default)]
 pub struct StrategyResult {
@@ -33,21 +28,34 @@ impl StrategyResult {
     }
 }
 
-macro_rules! strat_tuples {
-    [$($name:ident),* $(,)?] => {
-        [
-            $( ($name::NAME, $name::apply), )*
-        ]
-
-    };
+#[derive(Clone, Copy)]
+pub struct Strategy {
+    name: &'static str,
+    find: StrategyFn,
 }
 
-const STRATEGY_LIST: &[(&str, StrategyFn)] = &strat_tuples![
-    ReviseNotes,
-    FullHouse,
-    NakedSingle,
-    HiddenSingle,
-    NakedPair,
-    NakedTriple,
-    NakedQuad,
+impl PartialEq for Strategy {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
+impl Eq for Strategy {}
+
+impl Debug for Strategy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("StrategyObject")
+            .field("name", &self.name)
+            .finish()
+    }
+}
+
+const STRATEGY_LIST: &[Strategy] = &[
+    REVISE_NOTES,
+    FULL_HOUSE,
+    NAKED_SINGLE,
+    HIDDEN_SINGLE,
+    NAKED_PAIR,
+    NAKED_TRIPLE,
+    NAKED_QUAD,
 ];

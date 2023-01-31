@@ -1,57 +1,15 @@
 use itertools::Itertools;
 
 use crate::sudoku::{
-    board::Board,
     digit::Digit,
-    pos::{Candidate, Cell, CELLS_BY_UNIT},
+    pos::{Candidate, CELLS_BY_UNIT},
 };
 
 use super::{Strategy, StrategyResult};
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub struct FullHouse;
-
-impl Strategy for FullHouse {
-    const NAME: &'static str = "Full House";
-
-    fn apply(board: &Board) -> StrategyResult {
-        let mut result = StrategyResult::default();
-
-        for unit in CELLS_BY_UNIT {
-            let unsolved_cells: Vec<Cell> = unit
-                .iter()
-                .filter(|&cell| board.get_content(*cell).is_notes())
-                .copied()
-                .collect();
-
-            if unsolved_cells.len() == 1 {
-                let cell = *unsolved_cells.first().unwrap();
-
-                let notes = board.get_content(cell).get_notes().unwrap_or_else(|| {
-                    panic!("Full House strategy failed to get notes for {cell}",)
-                });
-
-                let digit = *notes.iter().next().unwrap_or_else(|| {
-                    panic!("Full House strategy failed to find a candidate for {cell}",)
-                });
-
-                result
-                    .solutions
-                    .push(Candidate::from_cell_and_digit(cell, digit));
-            }
-        }
-
-        result
-    }
-}
-
-#[derive(Clone, Copy, Debug)]
-pub struct NakedSingle;
-
-impl Strategy for NakedSingle {
-    const NAME: &'static str = "Naked Single";
-
-    fn apply(board: &Board) -> StrategyResult {
+pub const FULL_HOUSE: Strategy = Strategy {
+    name: "Full House",
+    find: |board| {
         let mut result = StrategyResult::default();
 
         for cell in board.iter_unsolved_cells() {
@@ -69,16 +27,35 @@ impl Strategy for NakedSingle {
         }
 
         result
-    }
-}
+    },
+};
 
-#[derive(Clone, Copy, Debug)]
-pub struct HiddenSingle;
+pub const NAKED_SINGLE: Strategy = Strategy {
+    name: "Naked Single",
+    find: |board| {
+        let mut result = StrategyResult::default();
 
-impl Strategy for HiddenSingle {
-    const NAME: &'static str = "Hidden Single";
+        for cell in board.iter_unsolved_cells() {
+            let notes: Vec<Digit> = board.get_notes_set(cell).into_iter().collect();
 
-    fn apply(board: &Board) -> StrategyResult {
+            if notes.len() != 1 {
+                continue;
+            }
+
+            let digit = *notes.first().unwrap();
+
+            let candidate = Candidate::from_cell_and_digit(cell, digit);
+
+            result.solutions.push(candidate);
+        }
+
+        result
+    },
+};
+
+pub const HIDDEN_SINGLE: Strategy = Strategy {
+    name: "Hidden Single",
+    find: |board| {
         let mut result = StrategyResult::default();
 
         for digit in Digit::list() {
@@ -102,5 +79,5 @@ impl Strategy for HiddenSingle {
         }
 
         result
-    }
-}
+    },
+};
