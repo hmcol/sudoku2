@@ -16,10 +16,10 @@ type StrategyFn = fn(&Board) -> StrategyResult;
 
 #[derive(Clone, Eq, PartialEq, Debug, Default)]
 pub struct StrategyResult {
-    solutions: Vec<Candidate>,
-    eliminations: Vec<Candidate>,
-    highlights: Vec<Candidate>,
-    highlights2: Vec<Candidate>,
+    pub solutions: Vec<Candidate>,
+    pub eliminations: Vec<Candidate>,
+    pub highlights: Vec<Candidate>,
+    pub highlights2: Vec<Candidate>,
 }
 
 impl StrategyResult {
@@ -30,8 +30,8 @@ impl StrategyResult {
 
 #[derive(Clone, Copy)]
 pub struct Strategy {
-    name: &'static str,
-    find: StrategyFn,
+    pub name: &'static str,
+    pub find: StrategyFn,
 }
 
 impl PartialEq for Strategy {
@@ -50,7 +50,7 @@ impl Debug for Strategy {
     }
 }
 
-const STRATEGY_LIST: &[Strategy] = &[
+pub const STRATEGY_LIST: &[Strategy] = &[
     REVISE_NOTES,
     FULL_HOUSE,
     NAKED_SINGLE,

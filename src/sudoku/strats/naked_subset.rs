@@ -4,8 +4,7 @@ use itertools::Itertools;
 
 use crate::sudoku::{
     board::Board,
-    digit::Digit,
-    pos::{Candidate, Cell, CELLS_BY_UNIT},
+    pos::{Candidate, Cell, Digit, CELLS_BY_UNIT},
 };
 
 use super::{Strategy, StrategyResult};

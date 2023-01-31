@@ -2,9 +2,9 @@ use std::rc::Rc;
 
 use yew::prelude::*;
 
-use crate::sudoku::digit::Digit;
+use crate::sudoku::pos::Digit;
 
-#[derive(Default, Clone, PartialEq, Debug)]
+#[derive(Default, Clone, Copy, PartialEq, Debug)]
 pub struct View {
     pub focus_digit: Option<Digit>,
 }

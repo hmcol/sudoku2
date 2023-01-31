@@ -4,8 +4,7 @@ use itertools::Itertools;
 
 use super::{
     cell::CellContent,
-    digit::Digit,
-    pos::{Candidate, Cell},
+    pos::{Candidate, Cell, Digit},
 };
 
 #[derive(Clone, Eq, PartialEq, Debug)]

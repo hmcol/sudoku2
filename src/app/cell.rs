@@ -3,7 +3,11 @@ use std::collections::HashSet;
 use log::info;
 use yew::prelude::*;
 
-use crate::sudoku::{board::Board, cell::CellContent, digit::Digit, pos::Cell};
+use crate::sudoku::{
+    board::Board,
+    cell::CellContent,
+    pos::{Cell, Digit},
+};
 
 use super::{view::View, ClickCallbacks};
 
