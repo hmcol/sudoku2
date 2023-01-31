@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use super::pos::Digit;
+use super::Digit;
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub enum CellContent {

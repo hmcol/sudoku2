@@ -1,13 +1,12 @@
 use log::{debug, info};
 
-use super::{board::Board, pos::Candidate, strats::{Strategy, STRATEGY_LIST, StrategyResult}};
+use super::{Board, Candidate, Strategy, StrategyResult, STRATEGY_LIST};
 
 pub enum Action {
     Reset,
     Undo,
     Step,
 }
-
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Solver {
@@ -85,11 +84,9 @@ impl Solver {
                 debug!("Found strategy: {}", strategy.name);
                 debug!("Result: {:#?}", result);
 
-                return Some(result)
+                return Some(result);
             }
         }
-
-        
 
         None
     }

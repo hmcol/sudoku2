@@ -1,10 +1,7 @@
 use log::info;
 use yew::prelude::*;
 
-use crate::sudoku::{
-    board::Board,
-    pos::{Cell, Digit},
-};
+use crate::sudoku::{Board, Cell, Digit};
 
 mod block;
 

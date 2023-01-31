@@ -2,10 +2,7 @@ use std::collections::HashSet;
 
 use itertools::Itertools;
 
-use crate::sudoku::{
-    board::Board,
-    pos::{Candidate, Cell, Digit, CELLS_BY_UNIT},
-};
+use crate::sudoku::{pos::CELLS_BY_UNIT, Board, Candidate, Cell, Digit};
 
 use super::{Strategy, StrategyResult};
 

@@ -1,5 +1,12 @@
 pub mod board;
+pub use board::Board;
+
 pub mod cell;
+
 pub mod pos;
+pub use pos::{Block, Candidate, Cell, Col, Digit, Row};
+
 pub mod solver;
-pub mod strats;
+
+mod strats;
+pub use strats::{Strategy, StrategyResult, STRATEGY_LIST};

@@ -1,4 +1,4 @@
-use crate::sudoku::pos::Candidate;
+use crate::sudoku::Candidate;
 
 use super::{Strategy, StrategyResult};
 

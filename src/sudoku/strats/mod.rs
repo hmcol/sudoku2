@@ -1,37 +1,36 @@
 use std::fmt::Debug;
 
-use crate::sudoku::board::Board;
+use crate::sudoku::{Board, Candidate};
 
-use self::naked_subset::{NAKED_PAIR, NAKED_QUAD, NAKED_TRIPLE};
-use self::revise_notes::REVISE_NOTES;
-use self::singles::{FULL_HOUSE, HIDDEN_SINGLE, NAKED_SINGLE};
-
-use super::pos::Candidate;
+// import strategies -----------------------------------------------------------
 
 mod naked_subset;
+use naked_subset::{NAKED_PAIR, NAKED_QUAD, NAKED_TRIPLE};
+
 mod revise_notes;
+use self::revise_notes::REVISE_NOTES;
+
 mod singles;
+use self::singles::{FULL_HOUSE, HIDDEN_SINGLE, NAKED_SINGLE};
 
-type StrategyFn = fn(&Board) -> StrategyResult;
+// -----------------------------------------------------------------------------
 
-#[derive(Clone, Eq, PartialEq, Debug, Default)]
-pub struct StrategyResult {
-    pub solutions: Vec<Candidate>,
-    pub eliminations: Vec<Candidate>,
-    pub highlights: Vec<Candidate>,
-    pub highlights2: Vec<Candidate>,
-}
+pub const STRATEGY_LIST: &[Strategy] = &[
+    REVISE_NOTES,
+    FULL_HOUSE,
+    NAKED_SINGLE,
+    HIDDEN_SINGLE,
+    NAKED_PAIR,
+    NAKED_TRIPLE,
+    NAKED_QUAD,
+];
 
-impl StrategyResult {
-    pub fn is_nontrivial(&self) -> bool {
-        !self.solutions.is_empty() || !self.eliminations.is_empty()
-    }
-}
+// strategy --------------------------------------------------------------------
 
 #[derive(Clone, Copy)]
 pub struct Strategy {
     pub name: &'static str,
-    pub find: StrategyFn,
+    pub find: fn(&Board) -> StrategyResult,
 }
 
 impl PartialEq for Strategy {
@@ -50,12 +49,18 @@ impl Debug for Strategy {
     }
 }
 
-pub const STRATEGY_LIST: &[Strategy] = &[
-    REVISE_NOTES,
-    FULL_HOUSE,
-    NAKED_SINGLE,
-    HIDDEN_SINGLE,
-    NAKED_PAIR,
-    NAKED_TRIPLE,
-    NAKED_QUAD,
-];
+// result ----------------------------------------------------------------------
+
+#[derive(Clone, Eq, PartialEq, Debug, Default)]
+pub struct StrategyResult {
+    pub solutions: Vec<Candidate>,
+    pub eliminations: Vec<Candidate>,
+    pub highlights: Vec<Candidate>,
+    pub highlights2: Vec<Candidate>,
+}
+
+impl StrategyResult {
+    pub fn is_nontrivial(&self) -> bool {
+        !self.solutions.is_empty() || !self.eliminations.is_empty()
+    }
+}

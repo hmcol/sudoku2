@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use yew::prelude::*;
 
-use crate::sudoku::pos::Digit;
+use crate::sudoku::Digit;
 
 #[derive(Default, Clone, Copy, PartialEq, Debug)]
 pub struct View {

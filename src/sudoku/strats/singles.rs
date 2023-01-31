@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use crate::sudoku::pos::{Candidate, Digit, CELLS_BY_UNIT};
+use crate::sudoku::{pos::CELLS_BY_UNIT, Candidate, Digit};
 
 use super::{Strategy, StrategyResult};
 

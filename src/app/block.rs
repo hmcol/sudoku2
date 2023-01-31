@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::sudoku::pos::Cell;
+use crate::sudoku::Cell;
 
 use super::cell::CellComponent;
 

@@ -1,11 +1,13 @@
 use std::fmt;
 
-use super::{macros::impl_bounded_int_newtype, Cell, Col};
+use super::{Cell, Col};
+
+// -----------------------------------------------------------------------------
 
 #[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Row(u8);
 
-impl_bounded_int_newtype! { Row = u8 < 9 }
+super::macros::impl_bounded_int_newtype! { Row = u8 < 9 }
 
 const ROW_CHARS: [char; 9] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
 

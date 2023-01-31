@@ -2,6 +2,8 @@ use std::fmt;
 
 use super::{Cell, Row};
 
+// -----------------------------------------------------------------------------
+
 #[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Col(u8);
 

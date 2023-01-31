@@ -2,29 +2,37 @@ use std::collections::{HashMap, HashSet};
 
 use itertools::Itertools;
 
-use super::{
-    cell::CellContent,
-    pos::{Candidate, Cell, Digit},
-};
+use super::{cell::CellContent, Candidate, Cell, Digit};
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Board {
     cells: HashMap<Cell, CellContent>,
+    notes: HashMap<Cell, HashSet<Digit>>,
+    digits: HashMap<Cell, Digit>,
+    givens: HashSet<Cell>,
 }
 
 impl Board {
     pub fn new() -> Board {
-        let mut cells = HashMap::new();
+        let cells = Cell::list()
+            .map(|cell| (cell, CellContent::default()))
+            .collect();
 
-        for id in Cell::list() {
-            cells.insert(id, CellContent::default());
+        let notes = Cell::list().map(|cell| (cell, Digit::full_set())).collect();
+
+        Board {
+            cells,
+            notes,
+            digits: HashMap::new(),
+            givens: HashSet::new(),
         }
-
-        Board { cells }
     }
 
     pub fn from_string(string: &str) -> Board {
         let mut cells = HashMap::new();
+        let mut notes = HashMap::new();
+        let mut digits = HashMap::new();
+        let mut givens = HashSet::new();
 
         for cell in Cell::list() {
             let index = cell.as_index();
@@ -37,15 +45,30 @@ impl Board {
             };
 
             cells.insert(cell, data);
+
+            match digit {
+                Some(digit) => {
+                    digits.insert(cell, digit);
+                    givens.insert(cell);
+                }
+                None => {
+                    notes.insert(cell, HashSet::from_iter(Digit::list()));
+                }
+            }
         }
 
-        Board { cells }
+        Board {
+            cells,
+            notes,
+            digits,
+            givens,
+        }
     }
 
     // mutating stuff
 
     pub fn reset(&mut self) {
-        for (cell, content) in self.cells.iter_mut() {
+        for (_, content) in self.cells.iter_mut() {
             if content.is_given() {
                 continue;
             }

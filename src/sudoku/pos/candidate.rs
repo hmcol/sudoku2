@@ -2,6 +2,8 @@ use std::fmt;
 
 use super::{Cell, Digit};
 
+// -----------------------------------------------------------------------------
+
 #[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Candidate(u16);
 

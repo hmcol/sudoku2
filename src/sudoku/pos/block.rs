@@ -2,6 +2,8 @@ use std::fmt;
 
 use super::{Cell, Col, Row};
 
+// -----------------------------------------------------------------------------
+
 #[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Block(u8);
 
