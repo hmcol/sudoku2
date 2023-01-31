@@ -3,8 +3,12 @@
         "binop",
         "bitand",
         "callout",
+        "elims",
+        "itertools",
         "newtype",
         "onclick",
-        "Repr"
+        "Repr",
+        "strat",
+        "strats"
     ]
 }

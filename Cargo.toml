@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 yew = { version = "0.20", features = ["csr"] }
+itertools = "0.10.5"

@@ -1,12 +1,13 @@
 use std::collections::HashSet;
 
+use yew::prelude::*;
+
 use crate::sudoku::{
     board::Board,
-    cell::{CellContent, CellData},
+    cell::{CellContent},
     digit::Digit,
-    pos::{Box, Cell, CELLS_BY_BOX},
+    pos::{Block, Cell, CELLS_BY_BLOCK},
 };
-use yew::prelude::*;
 
 #[function_component]
 pub fn App() -> Html {
@@ -57,9 +58,9 @@ struct GridProps {
 
 #[function_component]
 fn Grid(props: &GridProps) -> Html {
-    let boxes = Box::list().map(|box_id| {
+    let boxes = Block::list().map(|box_id| {
         let board = props.board.clone();
-        let cells = CELLS_BY_BOX[box_id.as_index()];
+        let cells = CELLS_BY_BLOCK[box_id.as_index()];
 
         html! {
             <BoxComponent {board} {cells} />
@@ -83,10 +84,10 @@ struct BoxProps {
 #[function_component]
 fn BoxComponent(props: &BoxProps) -> Html {
     let cells = props.cells.map(|cell| {
-        let data = props.board.get_data(cell).clone();
+        let content = props.board.get_content(cell).clone();
 
         html! {
-            <CellComponent {data} />
+            <CellComponent {cell} {content} />
         }
     });
 
@@ -99,12 +100,13 @@ fn BoxComponent(props: &BoxProps) -> Html {
 
 #[derive(Properties, PartialEq)]
 struct CellProps {
-    data: CellData,
+    cell: Cell,
+    content: CellContent,
 }
 
 #[function_component]
 fn CellComponent(props: &CellProps) -> Html {
-    let content = match props.data.content.clone() {
+    let content = match props.content.clone() {
         CellContent::Digit(digit, given) => {
             html! {
                 <CellDigit {digit} {given} />

@@ -1,12 +1,12 @@
-use super::{
-    cell::CellData,
-    pos::{Cell, CELLS_BY_BOX, CELLS_BY_COL, CELLS_BY_ROW},
-};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+
+use itertools::Itertools;
+
+use super::{cell::CellContent, digit::Digit, pos::Cell};
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Board {
-    cells: HashMap<Cell, CellData>,
+    cells: HashMap<Cell, CellContent>,
 }
 
 impl Board {
@@ -14,7 +14,7 @@ impl Board {
         let mut cells = HashMap::new();
 
         for id in Cell::list() {
-            cells.insert(id, CellData::new(id));
+            cells.insert(id, CellContent::default());
         }
 
         Board { cells }
@@ -29,8 +29,8 @@ impl Board {
             let digit = string.get(index..(index + 1)).and_then(|s| s.parse().ok());
 
             let data = match digit {
-                Some(digit) => CellData::new_given(cell, digit),
-                None => CellData::new(cell),
+                Some(digit) => CellContent::new_given(digit),
+                None => CellContent::default(),
             };
 
             cells.insert(cell, data);
@@ -39,25 +39,40 @@ impl Board {
         Board { cells }
     }
 
-    pub fn get_data(&self, cell: Cell) -> &CellData {
+    pub fn get_content(&self, cell: Cell) -> &CellContent {
         self.cells
             .get(&cell)
-            .unwrap_or_else(|| panic!("Cell {cell} not found"))
+            .unwrap_or_else(|| panic!("Cell {cell} not found in board"))
     }
 
-    pub fn cells(&self) -> impl Iterator<Item = &CellData> {
-        Cell::list().map(|id| self.get_data(id))
+    pub fn get_digit(&self, cell: Cell) -> Option<Digit> {
+        self.get_content(cell).get_digit()
     }
 
-    pub fn rows(&self) -> [[&CellData; 9]; 9] {
-        CELLS_BY_ROW.map(|id_row| id_row.map(|id| self.get_data(id)))
+    pub fn get_notes(&self, cell: Cell) -> Option<&HashSet<Digit>> {
+        self.get_content(cell).get_notes()
     }
 
-    pub fn cols(&self) -> [[&CellData; 9]; 9] {
-        CELLS_BY_COL.map(|id_col| id_col.map(|id| self.get_data(id)))
+    pub fn get_notes_set(&self, cell: Cell) -> HashSet<Digit> {
+        self.get_notes(cell)
+            .cloned()
+            .unwrap_or(HashSet::from_iter(Digit::list()))
     }
 
-    pub fn boxes(&self) -> [[&CellData; 9]; 9] {
-        CELLS_BY_BOX.map(|id_box| id_box.map(|id| self.get_data(id)))
+    pub fn get_notes_vec(&self, cell: Cell) -> Vec<Digit> {
+        self.get_notes(cell)
+            .cloned()
+            .map(|notes| notes.into_iter().collect_vec())
+            .unwrap_or(Digit::list().collect_vec())
     }
+
+    // iterators
+
+    pub fn iter_unsolved_cells(&self) -> impl Iterator<Item = Cell> + '_ {
+        self.cells
+            .iter()
+            .filter(|(_, content)| content.is_notes())
+            .map(|(cell, _)| *cell)
+    }
+    
 }
