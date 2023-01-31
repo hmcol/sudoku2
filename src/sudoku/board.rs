@@ -13,6 +13,8 @@ pub struct Board {
 }
 
 impl Board {
+    // constructors ------------------------------------------------------------
+
     pub fn new() -> Board {
         let cells = Cell::list()
             .map(|cell| (cell, CellContent::default()))
@@ -65,28 +67,7 @@ impl Board {
         }
     }
 
-    // mutating stuff
-
-    pub fn reset(&mut self) {
-        for (_, content) in self.cells.iter_mut() {
-            if content.is_given() {
-                continue;
-            }
-
-            *content = CellContent::default();
-        }
-    }
-
-    pub fn input_solution(&mut self, candidate: Candidate) {
-        self.cells
-            .insert(candidate.cell(), CellContent::new_digit(candidate.digit()));
-    }
-
-    pub fn input_elimination(&mut self, candidate: Candidate) {
-        unimplemented!()
-    }
-
-    //
+    // cell getters ------------------------------------------------------------
 
     pub fn get_content(&self, cell: Cell) -> &CellContent {
         self.cells
@@ -115,7 +96,28 @@ impl Board {
             .unwrap_or(Digit::list().collect_vec())
     }
 
-    // iterators
+    // mutators ----------------------------------------------------------------
+
+    pub fn reset(&mut self) {
+        for (_, content) in self.cells.iter_mut() {
+            if content.is_given() {
+                continue;
+            }
+
+            *content = CellContent::default();
+        }
+    }
+
+    pub fn input_solution(&mut self, candidate: Candidate) {
+        self.cells
+            .insert(candidate.cell(), CellContent::new_digit(candidate.digit()));
+    }
+
+    pub fn input_elimination(&mut self, candidate: Candidate) {
+        unimplemented!()
+    }
+
+    // iterators ---------------------------------------------------------------
 
     pub fn iter_unsolved_cells(&self) -> impl Iterator<Item = Cell> + '_ {
         self.cells

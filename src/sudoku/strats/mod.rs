@@ -15,6 +15,7 @@ use self::singles::{FULL_HOUSE, HIDDEN_SINGLE, NAKED_SINGLE};
 
 // -----------------------------------------------------------------------------
 
+/// list of all strategies in default order
 pub const STRATEGY_LIST: &[Strategy] = &[
     REVISE_NOTES,
     FULL_HOUSE,

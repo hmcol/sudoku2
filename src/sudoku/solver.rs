@@ -16,6 +16,8 @@ pub struct Solver {
 }
 
 impl Solver {
+    // constructor -------------------------------------------------------------
+
     pub fn new() -> Self {
         Solver {
             history: Vec::new(),
@@ -26,9 +28,9 @@ impl Solver {
         }
     }
 
-    // -------------------------------------------------------------------------
+    // actions -----------------------------------------------------------------
 
-    pub fn take_action(mut self, action: Action) -> Self {
+    pub fn take_action(self, action: Action) -> Self {
         match action {
             Action::Reset => self.reset(),
             Action::Undo => self.undo(),
@@ -65,6 +67,8 @@ impl Solver {
     fn remember_board(&mut self) {
         self.history.push(self.board.clone());
     }
+
+    // -------------------------------------------------------------------------
 
     pub fn input_solutions(&mut self, solutions: Vec<Candidate>) {
         self.remember_board();
