@@ -23,13 +23,13 @@ impl Digit {
         self.0 as usize
     }
 
-    // fn from_index_unchecked(index: usize) -> Self {
-    //     Self::new_unchecked(index as u8)
-    // }
+    pub fn from_index_unchecked(index: usize) -> Self {
+        Self::new_unchecked(index as u8)
+    }
 
-    // pub fn from_index_checked(index: usize) -> Option<Self> {
-    //     index.try_into().ok().and_then(Self::new_checked)
-    // }
+    pub fn from_index_checked(index: usize) -> Option<Self> {
+        index.try_into().ok().and_then(Self::new_checked)
+    }
 }
 
 #[derive(Debug)]

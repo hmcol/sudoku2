@@ -6,6 +6,7 @@
         "elims",
         "itertools",
         "newtype",
+        "nongiven",
         "onclick",
         "Repr",
         "strat",

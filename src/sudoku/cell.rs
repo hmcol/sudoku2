@@ -19,8 +19,16 @@ impl CellContent {
         CellContent::Digit(digit, true)
     }
 
+    pub fn new_digit(digit: Digit) -> CellContent {
+        CellContent::Digit(digit, false)
+    }
+
     pub fn is_digit(&self) -> bool {
         matches!(self, CellContent::Digit(_, _))
+    }
+
+    pub fn is_given(&self) -> bool {
+        matches!(self, CellContent::Digit(_, true))
     }
 
     pub fn is_notes(&self) -> bool {

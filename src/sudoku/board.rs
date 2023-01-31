@@ -2,7 +2,11 @@ use std::collections::{HashMap, HashSet};
 
 use itertools::Itertools;
 
-use super::{cell::CellContent, digit::Digit, pos::Cell};
+use super::{
+    cell::CellContent,
+    digit::Digit,
+    pos::{Candidate, Cell},
+};
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Board {
@@ -39,6 +43,29 @@ impl Board {
         Board { cells }
     }
 
+    // mutating stuff
+
+    pub fn reset(&mut self) {
+        for (cell, content) in self.cells.iter_mut() {
+            if content.is_given() {
+                continue;
+            }
+
+            *content = CellContent::default();
+        }
+    }
+
+    pub fn input_solution(&mut self, candidate: Candidate) {
+        self.cells
+            .insert(candidate.cell(), CellContent::new_digit(candidate.digit()));
+    }
+
+    pub fn input_elimination(&mut self, candidate: Candidate) {
+        unimplemented!()
+    }
+
+    //
+
     pub fn get_content(&self, cell: Cell) -> &CellContent {
         self.cells
             .get(&cell)
@@ -74,5 +101,4 @@ impl Board {
             .filter(|(_, content)| content.is_notes())
             .map(|(cell, _)| *cell)
     }
-    
 }

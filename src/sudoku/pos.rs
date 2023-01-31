@@ -283,6 +283,14 @@ impl Candidate {
     pub fn from_cell_and_digit(cell: Cell, digit: Digit) -> Self {
         Self::from_index_unchecked(cell.as_index() * 9 + digit.as_index())
     }
+
+    pub fn cell(self) -> Cell {
+        Cell::from_index_unchecked(self.as_index() / 9)
+    }
+
+    pub fn digit(self) -> Digit {
+        Digit::from_index_unchecked(self.as_index() % 9)
+    }
 }
 
 #[test]

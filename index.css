@@ -45,7 +45,7 @@ body {
     background-color: var(--border-color);
 }
 
-.box {
+.block {
     display: grid;
     grid-template: repeat(3, 1fr) / repeat(3, 1fr);
     gap: 1px;
