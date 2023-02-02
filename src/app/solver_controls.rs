@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use yew::prelude::*;
 
-pub use crate::sudoku::solver::{Action as SolverAction, Solver};
+pub use crate::sudoku::{Solver, SolverAction};
 
 #[derive(PartialEq, Properties)]
 pub struct SolverControlsProps {

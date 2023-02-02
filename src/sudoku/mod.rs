@@ -1,10 +1,11 @@
-pub mod board;
-pub use board::Board;
+mod board;
+pub use board::{Board, CellData};
 
-pub mod pos;
-pub use pos::{Block, Candidate, Cell, Col, Digit, Row};
-
-pub mod solver;
+mod pos;
+pub use pos::{Block, Candidate, Cell, Col, Digit, Row, CELLS_BY_BLOCK};
 
 mod strats;
 pub use strats::{Strategy, StrategyResult, STRATEGY_LIST};
+
+mod solver;
+pub use solver::{Action as SolverAction, Solver};

@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use log::info;
 use yew::prelude::*;
 
-use crate::sudoku::{board::CellData, Candidate, Cell, Digit};
+use crate::sudoku::{CellData, Candidate, Cell, Digit};
 
 use super::{ClickCallbacks, SolverHandle};
 
