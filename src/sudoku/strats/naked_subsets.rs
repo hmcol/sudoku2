@@ -26,8 +26,6 @@ pub const NAKED_QUAD: Strategy = Strategy {
 // =============================================================================
 
 fn find_naked_subset<const N: usize>(board: &Board) -> StrategyResult {
-    let mut result = StrategyResult::default();
-
     for unit in CELLS_BY_UNIT {
         let unsolved_cells: HashSet<Cell> = unit
             .iter()
@@ -47,23 +45,28 @@ fn find_naked_subset<const N: usize>(board: &Board) -> StrategyResult {
                 continue;
             }
 
+            let mut eliminations = Vec::new();
+
             for &cell in unsolved_cells.difference(&cell_set) {
-                let Some(notes) = board.get_notes(&cell) else {
-                    panic!("cell {cell:?} has no notes");
-                };
+                let notes = board.get_notes(&cell).unwrap();
 
                 let elims = notes
                     .intersection(&digit_set)
                     .map(|&digit| Candidate::from_cell_and_digit(cell, digit));
 
-                result.eliminations.extend(elims);
+                eliminations.extend(elims);
             }
 
-            if result.is_nontrivial() {
-                return result;
+            if eliminations.is_empty() {
+                continue;
             }
+
+            return StrategyResult {
+                eliminations,
+                ..Default::default()
+            };
         }
     }
 
-    result
+    StrategyResult::default()
 }

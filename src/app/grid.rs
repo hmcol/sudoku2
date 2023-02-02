@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::sudoku::{CELLS_BY_BLOCK, Block};
+use crate::sudoku::{Block, CELLS_BY_BLOCK};
 
 use super::block::BlockComponent;
 

@@ -16,9 +16,11 @@ pub enum Action {
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Solver {
-    history: Vec<Board>,
-    pub board: Board,
+    // private
     strategies: Vec<Strategy>,
+    history: Vec<Board>,
+    // public
+    pub board: Board,
     pub result: Option<StrategyResult>,
     pub focus_digit: Option<Digit>,
 }
@@ -53,8 +55,9 @@ impl Solver {
 
     fn reset(&mut self) {
         self.history.clear();
-
         self.board.reset();
+        self.result = None;
+        self.focus_digit = None;
     }
 
     fn undo(&mut self) {
