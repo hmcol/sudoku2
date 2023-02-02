@@ -1,6 +1,9 @@
 use itertools::Itertools;
 
-use crate::sudoku::{pos::CELLS_BY_UNIT, Candidate, Digit};
+use crate::{
+    sudoku::{pos::CELLS_BY_UNIT, Digit},
+    util::TryIntoArray,
+};
 
 use super::{Strategy, StrategyResult};
 
@@ -9,18 +12,27 @@ pub const FULL_HOUSE: Strategy = Strategy {
     find: |board| {
         let mut result = StrategyResult::default();
 
-        for cell in board.iter_unsolved_cells() {
-            let notes: Vec<Digit> = board.get_notes_set(cell).into_iter().collect();
+        for unit in CELLS_BY_UNIT {
+            let unsolved_cells = unit
+                .iter()
+                .copied()
+                .filter(|&cell| board.get_digit(&cell).is_none())
+                .collect_vec();
 
-            if notes.len() != 1 {
-                continue;
-            }
+            let Ok(cell) = unsolved_cells.try_singleton() else { 
+                continue 
+            };
 
-            let digit = *notes.first().unwrap();
+            let notes = board.get_notes(&cell).unwrap();
 
-            let candidate = Candidate::from_cell_and_digit(cell, digit);
+            let Ok(digit) = notes.try_singleton() else { 
+                // if all steps were valid, this should never happen.
+                // possible if user manually takes invalid step tho
+                // should raise some kind of error, but maybe not here
+                continue
+            };
 
-            result.solutions.push(candidate);
+            result.solutions.push((cell, digit).into());
         }
 
         result
@@ -33,17 +45,11 @@ pub const NAKED_SINGLE: Strategy = Strategy {
         let mut result = StrategyResult::default();
 
         for cell in board.iter_unsolved_cells() {
-            let notes: Vec<Digit> = board.get_notes_set(cell).into_iter().collect();
+            let notes = board.get_notes(&cell).unwrap();
 
-            if notes.len() != 1 {
-                continue;
-            }
+            let Ok(digit) = notes.try_singleton() else { continue };
 
-            let digit = *notes.first().unwrap();
-
-            let candidate = Candidate::from_cell_and_digit(cell, digit);
-
-            result.solutions.push(candidate);
+            result.solutions.push((cell, digit).into());
         }
 
         result
@@ -58,20 +64,13 @@ pub const HIDDEN_SINGLE: Strategy = Strategy {
         for digit in Digit::list() {
             for unit in CELLS_BY_UNIT {
                 let candidate_cells = unit
-                    .iter()
-                    .copied()
-                    .filter(|&cell| board.get_content(cell).has_note(digit))
+                    .into_iter()
+                    .filter(|cell| board.has_note(cell, digit))
                     .collect_vec();
 
-                if candidate_cells.len() != 1 {
-                    continue;
-                }
+                let Ok(cell) = candidate_cells.try_singleton() else { continue };
 
-                let cell = *candidate_cells.first().unwrap();
-
-                let candidate = Candidate::from_cell_and_digit(cell, digit);
-
-                result.solutions.push(candidate);
+                result.solutions.push((cell, digit).into());
             }
         }
 

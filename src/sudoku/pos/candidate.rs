@@ -21,6 +21,16 @@ impl Candidate {
     pub fn digit(self) -> Digit {
         Digit::from_index_unchecked(self.as_index() % 9)
     }
+
+    pub fn as_tuple(self) -> (Cell, Digit) {
+        (self.cell(), self.digit())
+    }
+}
+
+impl From<(Cell, Digit)> for Candidate {
+    fn from((cell, digit): (Cell, Digit)) -> Self {
+        Self::from_cell_and_digit(cell, digit)
+    }
 }
 
 impl fmt::Display for Candidate {

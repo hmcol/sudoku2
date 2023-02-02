@@ -3,6 +3,7 @@
         "binop",
         "bitand",
         "callout",
+        "elim",
         "elims",
         "itertools",
         "newtype",

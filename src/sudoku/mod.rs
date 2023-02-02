@@ -1,8 +1,6 @@
 pub mod board;
 pub use board::Board;
 
-pub mod cell;
-
 pub mod pos;
 pub use pos::{Block, Candidate, Cell, Col, Digit, Row};
 

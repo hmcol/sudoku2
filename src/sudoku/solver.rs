@@ -1,11 +1,12 @@
-use log::{debug, info};
+use log::{debug, error, info};
 
-use super::{Board, Candidate, Strategy, StrategyResult, STRATEGY_LIST};
+use super::{Board, Digit, Strategy, StrategyResult, STRATEGY_LIST};
 
 pub enum Action {
     Reset,
     Undo,
     Step,
+    SetFocus(Option<Digit>),
 }
 
 #[derive(Clone, Eq, PartialEq, Debug)]
@@ -13,6 +14,8 @@ pub struct Solver {
     history: Vec<Board>,
     pub board: Board,
     strategies: Vec<Strategy>,
+    pub result: Option<StrategyResult>,
+    pub focus_digit: Option<Digit>,
 }
 
 impl Solver {
@@ -25,73 +28,88 @@ impl Solver {
                 "607005010580007900000060000005000009000936000300000400000080000003600094050200806",
             ),
             strategies: STRATEGY_LIST.to_vec(),
+            result: None,
+            focus_digit: None,
         }
     }
 
     // actions -----------------------------------------------------------------
 
-    pub fn take_action(self, action: Action) -> Self {
+    pub fn take_action(mut self, action: Action) -> Self {
         match action {
             Action::Reset => self.reset(),
             Action::Undo => self.undo(),
             Action::Step => self.step(),
+            Action::SetFocus(digit) => self.set_focus(digit),
         }
+
+        self
     }
 
-    pub fn reset(mut self) -> Self {
+    pub fn reset(&mut self) {
         self.history.clear();
 
         self.board.reset();
-
-        self
     }
 
-    pub fn undo(mut self) -> Self {
+    pub fn undo(&mut self) {
         if let Some(board) = self.history.pop() {
             self.board = board;
         }
-
-        self
     }
 
-    pub fn step(mut self) -> Self {
-        self.find_next_strategy();
+    pub fn step(&mut self) {
+        info!("Solver starting a step.");
 
-        info!("Solver took a step.");
-
-        self
+        match self.result {
+            Some(_) => self.apply_current_result(),
+            None => self.find_next_strategy(),
+        }
     }
 
-    // -------------------------------------------------------------------------
+    fn set_focus(&mut self, digit: Option<Digit>) {
+        self.focus_digit = digit;
+    }
+
+    // mutating action helpers -------------------------------------------------
 
     fn remember_board(&mut self) {
         self.history.push(self.board.clone());
     }
 
-    // -------------------------------------------------------------------------
-
-    pub fn input_solutions(&mut self, solutions: Vec<Candidate>) {
-        self.remember_board();
-
-        for solution in solutions {
-            self.board.input_solution(solution);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-
-    pub fn find_next_strategy(&mut self) -> Option<StrategyResult> {
+    pub fn find_next_strategy(&mut self) {
         for strategy in &self.strategies {
             let result = (strategy.find)(&self.board);
 
             if result.is_nontrivial() {
-                debug!("Found strategy: {}", strategy.name);
+                info!("Found strategy: {}", strategy.name);
                 debug!("Result: {:#?}", result);
 
-                return Some(result);
+                self.result = Some(result);
+                return;
             }
         }
 
-        None
+        info!("no strategy found");
+    }
+
+    pub fn apply_current_result(&mut self) {
+        // .take() takes ownership of the result, leaving self.result as None.
+        // This is necessary because we need to borrow self.result mutably in
+        // order to call self.remember_board().
+        let Some(result) = self.result.take() else {
+            error!("Solver::apply_current_result() called with no result");
+            return;
+        };
+
+        self.remember_board();
+
+        for solution in result.solutions {
+            self.board.input_solution(solution);
+        }
+
+        for elimination in result.eliminations {
+            self.board.input_elimination(elimination);
+        }
     }
 }

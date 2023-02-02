@@ -28,7 +28,7 @@ fn find_naked_subset<const N: usize>(board: &Board) -> StrategyResult {
         let unsolved_cells: HashSet<Cell> = unit
             .iter()
             .copied()
-            .filter(|&cell| board.get_content(cell).is_notes())
+            .filter(|cell| board.is_notes(cell))
             .collect();
 
         for cell_vec in unsolved_cells.iter().combinations(N) {
@@ -36,16 +36,17 @@ fn find_naked_subset<const N: usize>(board: &Board) -> StrategyResult {
 
             let digit_set: HashSet<Digit> = cell_set
                 .iter()
-                .map(|&cell| board.get_notes_set(cell))
-                .reduce(|acc, notes| &acc | &notes)
-                .unwrap();
+                .map(|cell| board.get_notes(cell).unwrap())
+                .fold(HashSet::new(), |acc, notes| &acc | notes);
 
             if digit_set.len() != N {
                 continue;
             }
 
             for &cell in unsolved_cells.difference(&cell_set) {
-                let notes = board.get_notes_set(cell);
+                let Some(notes) = board.get_notes(&cell) else {
+                    panic!("cell {cell:?} has no notes");
+                };
 
                 let elims = notes
                     .intersection(&digit_set)

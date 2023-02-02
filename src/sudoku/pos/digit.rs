@@ -1,4 +1,4 @@
-use std::{collections::HashSet, str::FromStr};
+use std::str::FromStr;
 
 // -----------------------------------------------------------------------------
 
@@ -6,12 +6,6 @@ use std::{collections::HashSet, str::FromStr};
 pub struct Digit(u8);
 
 super::macros::impl_bounded_int_newtype! { Digit = u8 < 9 }
-
-impl Digit {
-    pub fn full_set() -> HashSet<Self> {
-        Self::list().collect()
-    }
-}
 
 #[derive(Debug)]
 pub struct ParseDigitError;

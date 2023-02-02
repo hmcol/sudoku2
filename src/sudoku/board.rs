@@ -1,14 +1,24 @@
 use std::collections::{HashMap, HashSet};
 
-use itertools::Itertools;
+use log::error;
 
-use super::{cell::CellContent, Candidate, Cell, Digit};
+use super::{Candidate, Cell, Digit};
 
-#[derive(Clone, Eq, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub enum CellData {
+    Digit(Digit),
+    Notes(HashSet<Digit>),
+}
+
+impl Default for CellData {
+    fn default() -> CellData {
+        CellData::Notes(HashSet::from_iter(Digit::list()))
+    }
+}
+
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Board {
-    cells: HashMap<Cell, CellContent>,
-    notes: HashMap<Cell, HashSet<Digit>>,
-    digits: HashMap<Cell, Digit>,
+    cell_data: HashMap<Cell, CellData>,
     givens: HashSet<Cell>,
 }
 
@@ -16,113 +26,132 @@ impl Board {
     // constructors ------------------------------------------------------------
 
     pub fn new() -> Board {
-        let cells = Cell::list()
-            .map(|cell| (cell, CellContent::default()))
+        let cell_data = Cell::list()
+            .map(|cell| (cell, CellData::default()))
             .collect();
 
-        let notes = Cell::list().map(|cell| (cell, Digit::full_set())).collect();
-
         Board {
-            cells,
-            notes,
-            digits: HashMap::new(),
+            cell_data,
             givens: HashSet::new(),
         }
     }
 
     pub fn from_string(string: &str) -> Board {
-        let mut cells = HashMap::new();
-        let mut notes = HashMap::new();
-        let mut digits = HashMap::new();
+        let mut cell_data = HashMap::new();
         let mut givens = HashSet::new();
 
-        for cell in Cell::list() {
-            let index = cell.as_index();
+        for (i, cell) in Cell::list().enumerate() {
+            let digit = string.get(i..(i + 1)).and_then(|s| s.parse().ok());
 
-            let digit = string.get(index..(index + 1)).and_then(|s| s.parse().ok());
+            if digit.is_some() {
+                givens.insert(cell);
+            }
 
-            let data = match digit {
-                Some(digit) => CellContent::new_given(digit),
-                None => CellContent::default(),
+            let data2 = match digit {
+                Some(digit) => CellData::Digit(digit),
+                None => CellData::default(),
             };
 
-            cells.insert(cell, data);
-
-            match digit {
-                Some(digit) => {
-                    digits.insert(cell, digit);
-                    givens.insert(cell);
-                }
-                None => {
-                    notes.insert(cell, HashSet::from_iter(Digit::list()));
-                }
-            }
+            cell_data.insert(cell, data2);
         }
 
-        Board {
-            cells,
-            notes,
-            digits,
-            givens,
-        }
+        Board { cell_data, givens }
     }
 
     // cell getters ------------------------------------------------------------
 
-    pub fn get_content(&self, cell: Cell) -> &CellContent {
-        self.cells
-            .get(&cell)
-            .unwrap_or_else(|| panic!("Cell {cell} not found in board"))
+    pub fn get_data(&self, cell: &Cell) -> &CellData {
+        let Some(data) = self.cell_data.get(cell) else {
+            panic!("Cell {cell} not found in board");
+        };
+
+        data
     }
 
-    pub fn get_digit(&self, cell: Cell) -> Option<Digit> {
-        self.get_content(cell).get_digit()
+    pub fn get_data_mut(&mut self, cell: &Cell) -> &mut CellData {
+        let Some(data) = self.cell_data.get_mut(cell) else {
+            panic!("Cell {cell} not found in board");
+        };
+
+        data
     }
 
-    pub fn get_notes(&self, cell: Cell) -> Option<&HashSet<Digit>> {
-        self.get_content(cell).get_notes()
+    pub fn get_digit(&self, cell: &Cell) -> Option<Digit> {
+        match self.get_data(cell) {
+            CellData::Digit(digit) => Some(*digit),
+            CellData::Notes(_) => None,
+        }
     }
 
-    pub fn get_notes_set(&self, cell: Cell) -> HashSet<Digit> {
-        self.get_notes(cell)
-            .cloned()
-            .unwrap_or(HashSet::from_iter(Digit::list()))
+    pub fn get_notes(&self, cell: &Cell) -> Option<&HashSet<Digit>> {
+        match self.get_data(cell) {
+            CellData::Digit(_) => None,
+            CellData::Notes(notes) => Some(notes),
+        }
     }
 
-    pub fn get_notes_vec(&self, cell: Cell) -> Vec<Digit> {
-        self.get_notes(cell)
-            .cloned()
-            .map(|notes| notes.into_iter().collect_vec())
-            .unwrap_or(Digit::list().collect_vec())
+    pub fn get_notes_mut(&mut self, cell: &Cell) -> Option<&mut HashSet<Digit>> {
+        match self.get_data_mut(cell) {
+            CellData::Digit(_) => None,
+            CellData::Notes(notes) => Some(notes),
+        }
+    }
+
+    // cell checkers -----------------------------------------------------------
+
+    pub fn is_digit(&self, cell: &Cell) -> bool {
+        matches!(self.get_data(cell), CellData::Digit(_))
+    }
+
+    pub fn is_given(&self, cell: &Cell) -> bool {
+        self.givens.contains(cell)
+    }
+
+    pub fn is_notes(&self, cell: &Cell) -> bool {
+        matches!(self.get_data(cell), CellData::Notes(_))
+    }
+
+    pub fn has_note(&self, cell: &Cell, digit: Digit) -> bool {
+        match self.get_notes(cell) {
+            Some(notes) => notes.contains(&digit),
+            None => false,
+        }
     }
 
     // mutators ----------------------------------------------------------------
 
     pub fn reset(&mut self) {
-        for (_, content) in self.cells.iter_mut() {
-            if content.is_given() {
+        for (cell, data) in self.cell_data.iter_mut() {
+            if self.givens.contains(cell) {
                 continue;
             }
 
-            *content = CellContent::default();
+            *data = CellData::default();
         }
     }
 
     pub fn input_solution(&mut self, candidate: Candidate) {
-        self.cells
-            .insert(candidate.cell(), CellContent::new_digit(candidate.digit()));
+        let (cell, digit) = candidate.as_tuple();
+
+        self.cell_data.insert(cell, CellData::Digit(digit));
     }
 
     pub fn input_elimination(&mut self, candidate: Candidate) {
-        unimplemented!()
+        let (cell, digit) = candidate.as_tuple();
+
+        let Some(notes) = self.get_notes_mut(&cell) else {
+            error!("Cell {cell} is not a notes cell");
+            return;
+        };
+
+        if !notes.remove(&digit) {
+            error!("Cell {cell} does not contain note {digit}");
+        }
     }
 
     // iterators ---------------------------------------------------------------
 
     pub fn iter_unsolved_cells(&self) -> impl Iterator<Item = Cell> + '_ {
-        self.cells
-            .iter()
-            .filter(|(_, content)| content.is_notes())
-            .map(|(cell, _)| *cell)
+        Cell::list().filter(|cell| matches!(self.get_data(cell), CellData::Notes(_)))
     }
 }
