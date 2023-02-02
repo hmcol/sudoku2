@@ -1,4 +1,5 @@
-use log::{debug, error, info};
+use log::{error, info};
+use stdweb::web::Date;
 
 use super::{Board, Digit, Strategy, StrategyResult, STRATEGY_LIST};
 
@@ -59,12 +60,16 @@ impl Solver {
     }
 
     pub fn step(&mut self) {
-        info!("Solver starting a step.");
+        // let start = Date::now();
 
         match self.result {
             Some(_) => self.apply_current_result(),
             None => self.find_next_strategy(),
         }
+
+        // let end = Date::now();
+        // let elapsed_time = end - start;
+        // info!("step took: {:?}", elapsed_time);
     }
 
     fn set_focus(&mut self, digit: Option<Digit>) {
@@ -83,7 +88,7 @@ impl Solver {
 
             if result.is_nontrivial() {
                 info!("Found strategy: {}", strategy.name);
-                debug!("Result: {:#?}", result);
+                // debug!("Result: {:#?}", result);
 
                 self.result = Some(result);
                 return;

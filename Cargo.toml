@@ -8,3 +8,4 @@ yew = { version = "0.20", features = ["csr"] }
 itertools = "0.10.5"
 wasm-logger = "0.2.0"
 log = "0.4"
+stdweb = "0.4.20"

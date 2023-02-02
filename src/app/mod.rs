@@ -15,12 +15,14 @@ use grid::Grid;
 mod solver_controls;
 use solver_controls::{Solver, SolverAction, SolverControls};
 
+pub type SolverHandle = UseReducerHandle<Solver>;
+
 #[function_component]
 pub fn App() -> Html {
     // state -------------------------------------------------------------------
 
     let solver_handle = use_reducer(Solver::new);
-    let solver = solver_handle.deref();
+    // let solver = solver_handle.deref();
 
     // callbacks ---------------------------------------------------------------
 
@@ -57,7 +59,7 @@ pub fn App() -> Html {
 
     html! {
         <div class={classes!("app")}>
-            <ContextProvider<Solver> context={solver.clone()}>
+            <ContextProvider<SolverHandle> context={solver_handle.clone()}>
                 <ContextProvider<ClickCallbacks> context={click_callbacks}>
                     <Grid />
                 </ContextProvider<ClickCallbacks>>
@@ -68,7 +70,7 @@ pub fn App() -> Html {
                         {on_undo}
                     />
                 </div>
-            </ContextProvider<Solver>>
+            </ContextProvider<SolverHandle>>
         </div>
 
     }

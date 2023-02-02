@@ -5,7 +5,7 @@ use yew::prelude::*;
 
 use crate::sudoku::{board::CellData, Candidate, Cell, Digit};
 
-use super::{solver_controls::Solver, ClickCallbacks};
+use super::{ClickCallbacks, SolverHandle};
 
 #[derive(Properties, PartialEq)]
 pub struct CellProps {
@@ -16,7 +16,7 @@ pub struct CellProps {
 pub fn CellComponent(props: &CellProps) -> Html {
     // get contexts ------------------------------------------------------------
 
-    let solver = use_context::<Solver>().expect("Solver context not found");
+    let solver = use_context::<SolverHandle>().expect("Solver context not found");
     let callbacks = use_context::<ClickCallbacks>().expect("ClickCallbacks context not found");
 
     // read props --------------------------------------------------------------
@@ -65,7 +65,7 @@ struct CellDigitProps {
 fn CellDigit(props: &CellDigitProps) -> Html {
     // get contexts ------------------------------------------------------------
 
-    let solver = use_context::<Solver>().expect("Solver context not found");
+    let solver = use_context::<SolverHandle>().expect("Solver context not found");
     let callbacks = use_context::<ClickCallbacks>().expect("ClickCallbacks context not found");
 
     // read props --------------------------------------------------------------
@@ -122,19 +122,22 @@ struct NoteProps {
 fn Note(props: &NoteProps) -> Html {
     // use contexts ------------------------------------------------------------
 
-    let solver = use_context::<Solver>().expect("Solver context not found");
+    let solver = use_context::<SolverHandle>().expect("Solver context not found");
     let cell = use_context::<Cell>().expect("Cell context not found");
 
     // read props --------------------------------------------------------------
 
-    let digit = props.digit.to_string();
-    let shown = props.is_shown.then_some("shown");
+    // derive attributes -------------------------------------------------------
 
-    // derive data -------------------------------------------------------------
+    let content = if props.is_shown {
+        props.digit.to_string()
+    } else {
+        " ".to_string()
+    };
 
     let c = Candidate::from_cell_and_digit(cell, props.digit);
 
-    let color = solver.result.and_then(|result| {
+    let color = solver.result.as_ref().and_then(|result| {
         let solution = result.solutions.contains(&c).then_some("green");
         let elimination = result.eliminations.contains(&c).then_some("red");
         let highlight = result.highlights.contains(&c).then_some("blue");
@@ -146,8 +149,8 @@ fn Note(props: &NoteProps) -> Html {
     // render ------------------------------------------------------------------
 
     html! {
-        <div class={classes!("note", shown, color)}>
-            { digit }
+        <div class={classes!("note", color)}>
+            { content }
         </div>
     }
 }
