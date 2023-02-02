@@ -1,11 +1,12 @@
 use std::collections::HashSet;
 
-use log::info;
 use yew::prelude::*;
 
-use crate::sudoku::{CellData, Candidate, Cell, Digit};
+use crate::sudoku::{Candidate, Cell, CellData, Digit};
 
 use super::{ClickCallbacks, SolverHandle};
+
+// =============================================================================
 
 #[derive(Properties, PartialEq)]
 pub struct CellProps {
@@ -120,7 +121,7 @@ struct NoteProps {
 
 #[function_component]
 fn Note(props: &NoteProps) -> Html {
-    // use contexts ------------------------------------------------------------
+    // use contexts -----------------------------------------------------------
 
     let solver = use_context::<SolverHandle>().expect("Solver context not found");
     let cell = use_context::<Cell>().expect("Cell context not found");

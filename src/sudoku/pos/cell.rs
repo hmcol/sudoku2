@@ -2,7 +2,7 @@ use std::{fmt, str::FromStr};
 
 use super::{Block, Col, Row, CELLS_BY_BLOCK};
 
-// -----------------------------------------------------------------------------
+// =============================================================================
 
 #[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Cell(u8);

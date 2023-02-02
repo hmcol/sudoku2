@@ -4,6 +4,8 @@ use crate::sudoku::{CELLS_BY_BLOCK, Block};
 
 use super::block::BlockComponent;
 
+// =============================================================================
+
 #[function_component]
 pub fn Grid() -> Html {
     let blocks = Block::list().map(|block_id| {

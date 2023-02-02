@@ -3,12 +3,16 @@ use stdweb::web::Date;
 
 use super::{Board, Digit, Strategy, StrategyResult, STRATEGY_LIST};
 
+// =============================================================================
+
 pub enum Action {
     Reset,
     Undo,
     Step,
     SetFocus(Option<Digit>),
 }
+
+// =============================================================================
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Solver {
@@ -20,7 +24,7 @@ pub struct Solver {
 }
 
 impl Solver {
-    // constructor -------------------------------------------------------------
+    // constructors ------------------------------------------------------------
 
     pub fn new() -> Self {
         Solver {
@@ -47,19 +51,19 @@ impl Solver {
         self
     }
 
-    pub fn reset(&mut self) {
+    fn reset(&mut self) {
         self.history.clear();
 
         self.board.reset();
     }
 
-    pub fn undo(&mut self) {
+    fn undo(&mut self) {
         if let Some(board) = self.history.pop() {
             self.board = board;
         }
     }
 
-    pub fn step(&mut self) {
+    fn step(&mut self) {
         // let start = Date::now();
 
         match self.result {
@@ -82,7 +86,7 @@ impl Solver {
         self.history.push(self.board.clone());
     }
 
-    pub fn find_next_strategy(&mut self) {
+    fn find_next_strategy(&mut self) {
         for strategy in &self.strategies {
             let result = (strategy.find)(&self.board);
 
@@ -98,7 +102,7 @@ impl Solver {
         info!("no strategy found");
     }
 
-    pub fn apply_current_result(&mut self) {
+    fn apply_current_result(&mut self) {
         // .take() takes ownership of the result, leaving self.result as None.
         // This is necessary because we need to borrow self.result mutably in
         // order to call self.remember_board().

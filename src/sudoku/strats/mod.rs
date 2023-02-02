@@ -1,17 +1,15 @@
-use std::fmt::Debug;
-
 use crate::sudoku::{Board, Candidate};
 
-// import strategies -----------------------------------------------------------
+// import strategies ===========================================================
+
+mod revise_notes;
+use revise_notes::REVISE_NOTES;
+
+mod singles;
+use singles::{FULL_HOUSE, HIDDEN_SINGLE, NAKED_SINGLE};
 
 mod naked_subset;
 use naked_subset::{NAKED_PAIR, NAKED_QUAD, NAKED_TRIPLE};
-
-mod revise_notes;
-use self::revise_notes::REVISE_NOTES;
-
-mod singles;
-use self::singles::{FULL_HOUSE, HIDDEN_SINGLE, NAKED_SINGLE};
 
 // -----------------------------------------------------------------------------
 
@@ -42,7 +40,7 @@ impl PartialEq for Strategy {
 
 impl Eq for Strategy {}
 
-impl Debug for Strategy {
+impl std::fmt::Debug for Strategy {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("StrategyObject")
             .field("name", &self.name)

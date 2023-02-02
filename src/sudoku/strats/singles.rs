@@ -7,6 +7,8 @@ use crate::{
 
 use super::{Strategy, StrategyResult};
 
+// =============================================================================
+
 pub const FULL_HOUSE: Strategy = Strategy {
     name: "Full House",
     find: |board| {

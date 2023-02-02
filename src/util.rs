@@ -4,6 +4,8 @@ use itertools::Itertools;
 
 pub struct TryIntoArrayError;
 
+// =============================================================================
+
 type Result<T> = std::result::Result<T, TryIntoArrayError>;
 
 pub trait TryIntoArray<T> {

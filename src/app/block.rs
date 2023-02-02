@@ -4,6 +4,8 @@ use crate::sudoku::Cell;
 
 use super::cell::CellComponent;
 
+// =============================================================================
+
 #[derive(Properties, PartialEq)]
 pub struct BlockProps {
     pub cells: [Cell; 9],
@@ -16,6 +18,8 @@ pub fn BlockComponent(props: &BlockProps) -> Html {
             <CellComponent {cell} />
         }
     });
+
+    // render ------------------------------------------------------------------
 
     html! {
         <div class={classes!("block")}>

@@ -4,6 +4,8 @@ use log::error;
 
 use super::{Candidate, Cell, Digit};
 
+// =============================================================================
+
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum CellData {
     Digit(Digit),
@@ -15,6 +17,8 @@ impl Default for CellData {
         CellData::Notes(HashSet::from_iter(Digit::list()))
     }
 }
+
+// =============================================================================
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Board {
@@ -68,7 +72,7 @@ impl Board {
         data
     }
 
-    pub fn get_data_mut(&mut self, cell: &Cell) -> &mut CellData {
+    fn get_data_mut(&mut self, cell: &Cell) -> &mut CellData {
         let Some(data) = self.cell_data.get_mut(cell) else {
             panic!("Cell {cell} not found in board");
         };
@@ -90,7 +94,7 @@ impl Board {
         }
     }
 
-    pub fn get_notes_mut(&mut self, cell: &Cell) -> Option<&mut HashSet<Digit>> {
+    fn get_notes_mut(&mut self, cell: &Cell) -> Option<&mut HashSet<Digit>> {
         match self.get_data_mut(cell) {
             CellData::Digit(_) => None,
             CellData::Notes(notes) => Some(notes),

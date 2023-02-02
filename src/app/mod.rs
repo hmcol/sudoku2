@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use log::info;
 use yew::prelude::*;
 
@@ -14,6 +12,8 @@ use grid::Grid;
 
 mod solver_controls;
 use solver_controls::{Solver, SolverAction, SolverControls};
+
+// =============================================================================
 
 pub type SolverHandle = UseReducerHandle<Solver>;
 
@@ -38,23 +38,6 @@ pub fn App() -> Html {
         on_click_digit,
     };
 
-    // solver controls callbacks -----------------------------------------------
-
-    let on_reset: Callback<()> = {
-        let solver_handle = solver_handle.clone();
-        Callback::from(move |_| solver_handle.dispatch(SolverAction::Reset))
-    };
-
-    let on_undo: Callback<()> = {
-        let solver_handle = solver_handle.clone();
-        Callback::from(move |_| solver_handle.dispatch(SolverAction::Undo))
-    };
-
-    let on_step: Callback<()> = {
-        let solver_handle = solver_handle.clone();
-        Callback::from(move |_| solver_handle.dispatch(SolverAction::Step))
-    };
-
     // render ------------------------------------------------------------------
 
     html! {
@@ -64,11 +47,7 @@ pub fn App() -> Html {
                     <Grid />
                 </ContextProvider<ClickCallbacks>>
                 <div class={classes!("game-info")}>
-                    <SolverControls
-                        {on_reset}
-                        {on_step}
-                        {on_undo}
-                    />
+                    <SolverControls />
                 </div>
             </ContextProvider<SolverHandle>>
         </div>

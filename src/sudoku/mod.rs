@@ -1,8 +1,8 @@
-mod board;
-pub use board::{Board, CellData};
-
 mod pos;
 pub use pos::{Block, Candidate, Cell, Col, Digit, Row, CELLS_BY_BLOCK};
+
+mod board;
+pub use board::{Board, CellData};
 
 mod strats;
 pub use strats::{Strategy, StrategyResult, STRATEGY_LIST};

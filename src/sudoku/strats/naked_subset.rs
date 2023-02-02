@@ -6,6 +6,8 @@ use crate::sudoku::{pos::CELLS_BY_UNIT, Board, Candidate, Cell, Digit};
 
 use super::{Strategy, StrategyResult};
 
+// =============================================================================
+
 pub const NAKED_PAIR: Strategy = Strategy {
     name: "Naked Pair",
     find: find_naked_subset::<2>,
@@ -20,6 +22,8 @@ pub const NAKED_QUAD: Strategy = Strategy {
     name: "Naked Quad",
     find: find_naked_subset::<4>,
 };
+
+// =============================================================================
 
 fn find_naked_subset<const N: usize>(board: &Board) -> StrategyResult {
     let mut result = StrategyResult::default();

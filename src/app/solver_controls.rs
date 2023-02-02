@@ -4,37 +4,41 @@ use yew::prelude::*;
 
 pub use crate::sudoku::{Solver, SolverAction};
 
-#[derive(PartialEq, Properties)]
-pub struct SolverControlsProps {
-    pub on_reset: Callback<()>,
-    pub on_step: Callback<()>,
-    pub on_undo: Callback<()>,
-}
+use super::SolverHandle;
+
+// =============================================================================
 
 #[function_component]
-pub fn SolverControls(props: &SolverControlsProps) -> Html {
-    let SolverControlsProps {
-        on_reset,
-        on_step,
-        on_undo,
-    } = props;
+pub fn SolverControls() -> Html {
+    // get contexts ------------------------------------------------------------
+
+    let solver = use_context::<SolverHandle>().expect("Solver context not found");
+
+    // build callbacks ---------------------------------------------------------
+
+    let on_reset: Callback<MouseEvent> = {
+        let solver = solver.clone();
+        Callback::from(move |_| solver.dispatch(SolverAction::Reset))
+    };
+
+    let on_undo: Callback<MouseEvent> = {
+        let solver = solver.clone();
+        Callback::from(move |_| solver.dispatch(SolverAction::Undo))
+    };
+
+    let on_step: Callback<MouseEvent> = {
+        // let solver = solver.clone();
+        Callback::from(move |_| solver.dispatch(SolverAction::Step))
+    };
+
+    // render ------------------------------------------------------------------
 
     html! {
         <div class={classes!("solver-controls")}>
-            { button("reset", on_reset) }
-            { button("undo", on_undo) }
-            { button("step", on_step) }
+            <button onclick={on_reset}>{"reset"}</button>
+            <button onclick={on_undo}>{"undo"}</button>
+            <button onclick={on_step}>{"step"}</button>
         </div>
-    }
-}
-
-fn button(text: &str, on_click: &Callback<()>) -> Html {
-    let on_click = on_click.clone();
-
-    let on_click = Callback::<MouseEvent>::from(move |_| on_click.emit(()));
-
-    html! {
-        <button onclick={on_click}>{text}</button>
     }
 }
 

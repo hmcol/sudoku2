@@ -2,6 +2,8 @@ use crate::sudoku::Candidate;
 
 use super::{Strategy, StrategyResult};
 
+// =============================================================================
+
 pub const REVISE_NOTES: Strategy = Strategy {
     name: "Revise Notes",
     find: |board| {
