@@ -1,5 +1,5 @@
 mod pos;
-pub use pos::{Block, Candidate, Cell, Col, Digit, Row, CELLS_BY_BLOCK};
+pub use pos::{Block, Candidate, Cell, Col, Digit, Line, Row, Unit};
 
 mod board;
 pub use board::{Board, CellData};

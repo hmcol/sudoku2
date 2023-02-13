@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::sudoku::Cell;
+use crate::sudoku::Block;
 
 use super::cell::CellComponent;
 
@@ -8,12 +8,12 @@ use super::cell::CellComponent;
 
 #[derive(Properties, PartialEq)]
 pub struct BlockProps {
-    pub cells: [Cell; 9],
+    pub block: Block,
 }
 
 #[function_component]
 pub fn BlockComponent(props: &BlockProps) -> Html {
-    let cells = props.cells.map(|cell| {
+    let cells = props.block.cells_iter().map(|cell| {
         html! {
             <CellComponent {cell} />
         }

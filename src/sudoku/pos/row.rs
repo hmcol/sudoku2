@@ -1,11 +1,11 @@
-use std::fmt;
+use std::{fmt, collections::HashSet};
 
 use super::{Cell, Col};
 
 // =============================================================================
 
 #[derive(Clone, Copy, Eq, PartialEq, Hash)]
-pub struct Row(u8);
+pub struct Row(pub(super) u8);
 
 super::macros::impl_bounded_int_newtype! { Row = u8 < 9 }
 
@@ -32,6 +32,10 @@ impl TryFrom<char> for Row {
 impl Row {
     pub fn iter_cells(self) -> impl Iterator<Item = Cell> {
         Col::list().map(move |col| Cell::from_row_and_col(self, col))
+    }
+
+    pub fn cells_set(self) -> HashSet<Cell> {
+        self.iter_cells().collect()
     }
 }
 

@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use itertools::Itertools;
 
-use crate::sudoku::{pos::CELLS_BY_UNIT, Board, Candidate, Cell, Digit};
+use crate::sudoku::{Board, Candidate, Digit, Unit};
 
 use super::{Strategy, StrategyResult};
 
@@ -26,21 +26,14 @@ pub const HIDDEN_QUAD: Strategy = Strategy {
 // =============================================================================
 
 fn find_hidden_subset<const N: usize>(board: &Board) -> StrategyResult {
-    for unit in CELLS_BY_UNIT {
-        let unsolved_cells: HashSet<Cell> = unit
-            .iter()
-            .copied()
-            .filter(|cell| board.is_notes(cell))
-            .collect();
-
+    for unit in Unit::list() {
         for digit_vec in Digit::list().combinations(N) {
             let digit_set: HashSet<Digit> = digit_vec.into_iter().collect();
 
-            let cell_set: HashSet<Cell> = unsolved_cells
-                .iter()
-                .filter(|cell| board.get_notes(cell).unwrap().is_subset(&digit_set))
-                .copied()
-                .collect();
+            let cell_set = unit
+                .cells_iter()
+                .filter_map(|cell| board.get_notes(&cell).map(|notes| (cell, notes)))
+                .collect_vec();
 
             if cell_set.len() != N {
                 continue;
@@ -48,9 +41,7 @@ fn find_hidden_subset<const N: usize>(board: &Board) -> StrategyResult {
 
             let mut eliminations = Vec::new();
 
-            for cell in cell_set {
-                let notes = board.get_notes(&cell).unwrap();
-
+            for (cell, notes) in cell_set {
                 let elims = notes
                     .difference(&digit_set)
                     .map(|&digit| Candidate::from_cell_and_digit(cell, digit));

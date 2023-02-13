@@ -1,6 +1,6 @@
-use std::{fmt, str::FromStr};
+use std::{collections::HashSet, fmt, str::FromStr};
 
-use super::{Block, Col, Row, CELLS_BY_BLOCK};
+use super::{Block, Col, Row};
 
 // =============================================================================
 
@@ -27,16 +27,17 @@ impl Cell {
     }
 
     pub fn iter_neighbors(self) -> impl Iterator<Item = Self> {
-        let block = CELLS_BY_BLOCK[self.block().as_index()];
+        let mut neighbors: HashSet<Cell> = self.block().cells_iter().collect();
 
-        let row_iter = self.col().iter_cells().filter(move |c| !block.contains(c));
-        let col_iter = self.row().iter_cells().filter(move |c| !block.contains(c));
+        for cell in self.row().cells_iter() {
+            neighbors.insert(cell);
+        }
 
-        self.block()
-            .iter_cells()
-            .filter(move |c| *c != self)
-            .chain(row_iter)
-            .chain(col_iter)
+        for cell in self.col().cells_iter() {
+            neighbors.insert(cell);
+        }
+
+        neighbors.into_iter()
     }
 }
 

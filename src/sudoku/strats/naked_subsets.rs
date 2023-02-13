@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use itertools::Itertools;
 
-use crate::sudoku::{pos::CELLS_BY_UNIT, Board, Candidate, Cell, Digit};
+use crate::sudoku::{Board, Candidate, Cell, Digit, Unit};
 
 use super::{Strategy, StrategyResult};
 
@@ -26,10 +26,9 @@ pub const NAKED_QUAD: Strategy = Strategy {
 // =============================================================================
 
 fn find_naked_subset<const N: usize>(board: &Board) -> StrategyResult {
-    for unit in CELLS_BY_UNIT {
+    for unit in Unit::list() {
         let unsolved_cells: HashSet<Cell> = unit
-            .iter()
-            .copied()
+            .cells_iter()
             .filter(|cell| board.is_notes(cell))
             .collect();
 

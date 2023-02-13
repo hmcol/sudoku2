@@ -14,6 +14,9 @@ use naked_subsets::{NAKED_PAIR, NAKED_QUAD, NAKED_TRIPLE};
 mod hidden_subsets;
 use hidden_subsets::{HIDDEN_PAIR, HIDDEN_QUAD, HIDDEN_TRIPLE};
 
+mod intersections;
+use intersections::{INTERSECTION_POINTING, INTERSECTION_CLAIMING};
+
 // -----------------------------------------------------------------------------
 
 /// list of all strategies in default order
@@ -28,14 +31,13 @@ pub const STRATEGY_LIST: &[Strategy] = &[
     HIDDEN_PAIR,
     HIDDEN_TRIPLE,
     HIDDEN_QUAD,
+    INTERSECTION_POINTING,
+    INTERSECTION_CLAIMING,
 ];
 
 /// checklist:
-/// - hiddenPair,
-/// - hiddenTriple,
 /// - intersectionPointing,
 /// - intersectionClaiming,
-/// - hiddenQuad,
 /// - xWing,
 /// - swordfish,
 /// - jellyfish,
@@ -91,24 +93,6 @@ pub struct StrategyResult {
 }
 
 impl StrategyResult {
-    // constructors ------------------------------------------------------------
-
-    pub fn with_sols(solutions: Vec<Candidate>) -> Self {
-        Self {
-            solutions,
-            ..Default::default()
-        }
-    }
-
-    pub fn with_elims(eliminations: Vec<Candidate>) -> Self {
-        Self {
-            eliminations,
-            ..Default::default()
-        }
-    }
-
-    // -------------------------------------------------------------------------
-
     pub fn is_nontrivial(&self) -> bool {
         !self.solutions.is_empty() || !self.eliminations.is_empty()
     }

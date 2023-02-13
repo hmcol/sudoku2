@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
 use crate::{
-    sudoku::{pos::CELLS_BY_UNIT, Digit},
+    sudoku::{Digit, Unit},
     util::TryIntoArray,
 };
 
@@ -14,10 +14,9 @@ pub const FULL_HOUSE: Strategy = Strategy {
     find: |board| {
         let mut solutions = Vec::new();
 
-        for unit in CELLS_BY_UNIT {
+        for unit in Unit::list() {
             let unsolved_cells = unit
-                .iter()
-                .copied()
+                .cells_iter()
                 .filter(|&cell| board.get_digit(&cell).is_none())
                 .collect_vec();
 
@@ -69,9 +68,9 @@ pub const HIDDEN_SINGLE: Strategy = Strategy {
         let mut result = StrategyResult::default();
 
         for digit in Digit::list() {
-            for unit in CELLS_BY_UNIT {
+            for unit in Unit::list() {
                 let candidate_cells = unit
-                    .into_iter()
+                    .cells_iter()
                     .filter(|cell| board.has_note(cell, digit))
                     .collect_vec();
 
