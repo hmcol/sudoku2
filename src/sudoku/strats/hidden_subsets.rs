@@ -27,12 +27,18 @@ pub const HIDDEN_QUAD: Strategy = Strategy {
 
 fn find_hidden_subset<const N: usize>(board: &Board) -> StrategyResult {
     for unit in Unit::list() {
-        for digit_vec in Digit::list().combinations(N) {
+        let unsolved_digits_in_unit = unit
+            .cells_iter()
+            .filter_map(|cell| board.get_notes(&cell))
+            .fold(HashSet::new(), |acc, notes| &acc | notes);
+
+        for digit_vec in unsolved_digits_in_unit.into_iter().combinations(N) {
             let digit_set: HashSet<Digit> = digit_vec.into_iter().collect();
 
             let cell_set = unit
                 .cells_iter()
                 .filter_map(|cell| board.get_notes(&cell).map(|notes| (cell, notes)))
+                .filter(|(_, notes)| !(*notes & &digit_set).is_empty())
                 .collect_vec();
 
             if cell_set.len() != N {

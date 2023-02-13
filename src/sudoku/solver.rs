@@ -1,5 +1,4 @@
 use log::{error, info};
-use stdweb::web::Date;
 
 use super::{Board, Digit, Strategy, StrategyResult, STRATEGY_LIST};
 
