@@ -15,7 +15,10 @@ mod hidden_subsets;
 use hidden_subsets::{HIDDEN_PAIR, HIDDEN_QUAD, HIDDEN_TRIPLE};
 
 mod intersections;
-use intersections::{INTERSECTION_POINTING, INTERSECTION_CLAIMING};
+use intersections::{INTERSECTION_CLAIMING, INTERSECTION_POINTING};
+
+mod fish;
+use fish::{JELLYFISH, SWORDFISH, X_WING};
 
 // -----------------------------------------------------------------------------
 
@@ -26,18 +29,19 @@ pub const STRATEGY_LIST: &[Strategy] = &[
     NAKED_SINGLE,
     HIDDEN_SINGLE,
     NAKED_PAIR,
-    NAKED_TRIPLE,
-    NAKED_QUAD,
     HIDDEN_PAIR,
-    HIDDEN_TRIPLE,
-    HIDDEN_QUAD,
     INTERSECTION_POINTING,
     INTERSECTION_CLAIMING,
+    NAKED_TRIPLE,
+    HIDDEN_TRIPLE,
+    NAKED_QUAD,
+    HIDDEN_QUAD,
+    X_WING,
+    SWORDFISH,
+    JELLYFISH,
 ];
 
 /// checklist:
-/// - intersectionPointing,
-/// - intersectionClaiming,
 /// - xWing,
 /// - swordfish,
 /// - jellyfish,

@@ -1,4 +1,4 @@
-use log::{error, info};
+use log::{error, info, debug};
 
 use super::{Board, Digit, Strategy, StrategyResult, STRATEGY_LIST};
 
@@ -90,6 +90,8 @@ impl Solver {
 
     fn find_next_strategy(&mut self) {
         for strategy in &self.strategies {
+            debug!("Trying strategy: {}", strategy.name);
+
             let result = (strategy.find)(&self.board);
 
             if result.is_nontrivial() {
