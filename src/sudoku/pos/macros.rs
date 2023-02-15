@@ -1,29 +1,21 @@
 /// implements methods for a newtype wrapper around a bounded integer
 macro_rules! impl_bounded_int_newtype {
-    ($name:ident = $repr:ident < $bound:literal) => {
-        impl $name {
-            pub fn new(value: $repr) -> Option<Self> {
-                (value < $bound).then_some(Self::new_unchecked(value))
-            }
-
-            pub(super) const fn new_unchecked(value: $repr) -> Self {
+    ($Ty:ident = $Repr:ident < $MAX:literal) => {
+        impl $Ty {
+            pub const fn new_unchecked(value: $Repr) -> Self {
                 Self(value)
+            }
+            
+            pub fn new(value: $Repr) -> Option<Self> {
+                if value < $MAX {
+                    Some(Self(value))
+                } else {
+                    None
+                }
             }
 
             pub fn list() -> impl Iterator<Item = Self> {
-                (0..$bound).map(Self::new_unchecked)
-            }
-
-            pub fn as_index(self) -> usize {
-                self.0 as usize
-            }
-
-            pub fn from_index(index: usize) -> Option<Self> {
-                index.try_into().ok().and_then(Self::new)
-            }
-
-            pub(super) fn from_index_unchecked(index: usize) -> Self {
-                Self::new_unchecked(index as $repr)
+                (0..$MAX).map(Self::new_unchecked)
             }
         }
     };

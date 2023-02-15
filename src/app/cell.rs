@@ -1,8 +1,9 @@
-use std::collections::HashSet;
-
 use yew::prelude::*;
 
-use crate::sudoku::{Candidate, Cell, CellData, Digit};
+use crate::{
+    bitset::Set,
+    sudoku::{Candidate, Cell, CellData, Digit},
+};
 
 use super::{ClickCallbacks, SolverHandle};
 
@@ -93,13 +94,13 @@ fn CellDigit(props: &CellDigitProps) -> Html {
 
 #[derive(Properties, PartialEq)]
 struct CellNotesProps {
-    notes: HashSet<Digit>,
+    notes: Set<Digit>,
 }
 
 #[function_component]
 fn CellNotes(props: &CellNotesProps) -> Html {
     let notes = Digit::list().map(|digit| {
-        let is_shown = props.notes.contains(&digit);
+        let is_shown = props.notes.contains(digit);
 
         html! {
             <Note {digit} {is_shown} />

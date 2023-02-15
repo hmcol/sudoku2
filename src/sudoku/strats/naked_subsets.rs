@@ -1,8 +1,9 @@
-use std::collections::HashSet;
-
 use itertools::Itertools;
 
-use crate::sudoku::{Board, Candidate, Cell, Digit, Unit};
+use crate::{
+    bitset::Set,
+    sudoku::{pos::UnitClass, Board, Candidate, Cell, Unit},
+};
 
 use super::{Strategy, StrategyResult};
 
@@ -27,18 +28,20 @@ pub const NAKED_QUAD: Strategy = Strategy {
 
 fn find_naked_subset<const N: usize>(board: &Board) -> StrategyResult {
     for unit in Unit::list() {
-        let unsolved_cells: HashSet<Cell> = unit
-            .cells_iter()
+        let unsolved_cells: Set<Cell> = unit
+            .array()
+            .iter()
             .filter(|cell| board.is_notes(cell))
+            .copied()
             .collect();
 
         for cell_vec in unsolved_cells.iter().combinations(N) {
-            let cell_set: HashSet<Cell> = cell_vec.into_iter().copied().collect();
+            let cell_set: Set<Cell> = cell_vec.into_iter().collect();
 
-            let digit_set: HashSet<Digit> = cell_set
+            let digit_set = cell_set
                 .iter()
-                .map(|cell| board.get_notes(cell).unwrap())
-                .fold(HashSet::new(), |acc, notes| &acc | notes);
+                .map(|cell| board.get_notes(&cell).unwrap())
+                .fold(Set::new(), |acc, &notes| acc | notes);
 
             if digit_set.len() != N {
                 continue;
@@ -46,12 +49,12 @@ fn find_naked_subset<const N: usize>(board: &Board) -> StrategyResult {
 
             let mut eliminations = Vec::new();
 
-            for &cell in unsolved_cells.difference(&cell_set) {
+            for cell in (unsolved_cells - cell_set).iter() {
                 let notes = board.get_notes(&cell).unwrap();
 
-                let elims = notes
-                    .intersection(&digit_set)
-                    .map(|&digit| Candidate::from_cell_and_digit(cell, digit));
+                let elims = (*notes & digit_set)
+                    .iter()
+                    .map(|digit| Candidate::from_cell_and_digit(cell, digit));
 
                 eliminations.extend(elims);
             }

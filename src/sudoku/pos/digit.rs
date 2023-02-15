@@ -1,11 +1,15 @@
 use std::str::FromStr;
 
+use crate::bitset::{Element, impl_element_for_int_newtype};
+
 // =============================================================================
 
 #[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Digit(u8);
 
 super::macros::impl_bounded_int_newtype! { Digit = u8 < 9 }
+
+impl_element_for_int_newtype! { Digit = u8 < 9 in u16 }
 
 #[derive(Debug)]
 pub struct ParseDigitError;

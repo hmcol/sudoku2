@@ -1,8 +1,9 @@
-use std::collections::HashSet;
-
 use itertools::Itertools;
 
-use crate::sudoku::{pos::UnitClass, Block, Board, Candidate, Cell, Digit, Line};
+use crate::{
+    bitset::Set,
+    sudoku::{pos::UnitClass, Block, Board, Candidate, Digit, Line, Cell},
+};
 
 use super::{Strategy, StrategyResult};
 
@@ -23,7 +24,7 @@ pub const INTERSECTION_CLAIMING: Strategy = Strategy {
 fn find_intersection<Base: UnitClass, Cover: UnitClass>(board: &Board) -> StrategyResult {
     for x in Digit::list() {
         for base_unit in Base::all_vec() {
-            let x_base_cells: HashSet<Cell> = base_unit
+            let x_base_cells: Set<Cell> = base_unit
                 .array()
                 .iter()
                 .filter(|cell| board.has_note(cell, x))
@@ -44,9 +45,9 @@ fn find_intersection<Base: UnitClass, Cover: UnitClass>(board: &Board) -> Strate
                 .array()
                 .iter()
                 .into_iter()
-                .filter(|cell| board.has_note(cell, x))
-                .filter(|cell| !x_base_cells.contains(cell))
                 .copied()
+                .filter(|cell| board.has_note(cell, x))
+                .filter(|cell| !x_base_cells.contains(*cell))
                 .map(|cell| Candidate::from_cell_and_digit(cell, x))
                 .collect_vec();
 

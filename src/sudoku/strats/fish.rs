@@ -1,8 +1,9 @@
-use std::collections::HashSet;
-
 use itertools::Itertools;
 
-use crate::sudoku::{pos::UnitClass, Board, Candidate, Cell, Col, Digit, Row};
+use crate::{
+    bitset::Set,
+    sudoku::{pos::UnitClass, Board, Candidate, Cell, Col, Digit, Row},
+};
 
 use super::{Strategy, StrategyResult};
 
@@ -43,7 +44,7 @@ fn find_fish<const N: usize, Base: UnitClass, Cover: UnitClass>(board: &Board) -
             .collect_vec();
 
         for base_units in base_units_with_x.into_iter().combinations(N) {
-            let base_cells: HashSet<Cell> = base_units
+            let base_cells: Set<Cell> = base_units
                 .into_iter()
                 .flat_map(|base_unit| base_unit.array().to_vec())
                 .collect();
@@ -52,7 +53,7 @@ fn find_fish<const N: usize, Base: UnitClass, Cover: UnitClass>(board: &Board) -
                 .into_iter()
                 .combinations(N)
                 .find(|cover_units| {
-                    let cover_cells_set: HashSet<Cell> = cover_units
+                    let cover_cells_set: Set<Cell> = cover_units
                         .iter()
                         .flat_map(|cover_unit| cover_unit.array().to_vec())
                         .collect();
@@ -64,15 +65,14 @@ fn find_fish<const N: usize, Base: UnitClass, Cover: UnitClass>(board: &Board) -
                 continue;
             };
 
-            let cover_cells: HashSet<Cell> = cover_units
+            let cover_cells: Set<Cell> = cover_units
                 .into_iter()
                 .flat_map(|cover_unit| cover_unit.array().to_vec())
                 .collect();
 
-            let eliminations = cover_cells
-                .difference(&base_cells)
+            let eliminations = (cover_cells - base_cells)
+                .iter()
                 .filter(|cell| board.has_note(cell, x))
-                .copied()
                 .map(|cell| Candidate::from_cell_and_digit(cell, x))
                 .collect_vec();
 

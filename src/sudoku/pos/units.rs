@@ -1,6 +1,6 @@
-use std::collections::HashSet;
-
 use itertools::Itertools;
+
+use crate::bitset::{impl_element_for_int_newtype, Element, Set};
 
 use super::{macros::impl_bounded_int_newtype, Cell};
 
@@ -9,23 +9,32 @@ use super::{macros::impl_bounded_int_newtype, Cell};
 #[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Row(u8);
 
+impl_bounded_int_newtype! { Row = u8 < 9 }
+impl_element_for_int_newtype! { Row = u8 <  9 in u16 }
+
 #[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Col(u8);
+
+impl_bounded_int_newtype! { Col = u8 < 9 }
+impl_element_for_int_newtype! { Col = u8 <  9 in u16 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Block(u8);
 
+impl_bounded_int_newtype! { Block = u8 < 9 }
+impl_element_for_int_newtype! { Block = u8 <  9 in u16 }
+
 #[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Line(u8);
+
+impl_bounded_int_newtype! { Line = u8 < 18 }
+impl_element_for_int_newtype! { Line = u8 <  18 in u16 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Unit(u8);
 
-impl_bounded_int_newtype! { Row = u8 < 9 }
-impl_bounded_int_newtype! { Col = u8 < 9 }
-impl_bounded_int_newtype! { Block = u8 < 9 }
-impl_bounded_int_newtype! { Line = u8 < 18 }
 impl_bounded_int_newtype! { Unit = u8 < 27 }
+impl_element_for_int_newtype! { Unit = u8 < 27 in u16 }
 
 // =============================================================================
 
@@ -192,14 +201,20 @@ impl_cells_iter! { Unit }
 pub trait UnitClass: Copy + Sized {
     fn all_vec() -> Vec<Self>;
     fn array(self) -> &'static UnitArray;
-    fn cells_set(self) -> HashSet<Cell> {
-        self.array().iter().copied().collect()
+    fn cells_set(self) -> Set<Cell> {
+        let mut cells = Set::new();
+
+        for cell in self.array() {
+            cells.insert(*cell);
+        }
+
+        cells
     }
 }
 
 impl UnitClass for Row {
     fn array(self) -> &'static UnitArray {
-        &ROWS[self.as_index()]
+        &ROWS[self.index()]
     }
 
     fn all_vec() -> Vec<Self> {
@@ -209,7 +224,7 @@ impl UnitClass for Row {
 
 impl UnitClass for Col {
     fn array(self) -> &'static UnitArray {
-        &COLS[self.as_index()]
+        &COLS[self.index()]
     }
 
     fn all_vec() -> Vec<Self> {
@@ -219,7 +234,7 @@ impl UnitClass for Col {
 
 impl UnitClass for Line {
     fn array(self) -> &'static UnitArray {
-        &LINES[self.as_index()]
+        &LINES[self.index()]
     }
 
     fn all_vec() -> Vec<Self> {
@@ -229,7 +244,7 @@ impl UnitClass for Line {
 
 impl UnitClass for Block {
     fn array(self) -> &'static UnitArray {
-        &BLOCKS[self.as_index()]
+        &BLOCKS[self.index()]
     }
 
     fn all_vec() -> Vec<Self> {
@@ -239,7 +254,7 @@ impl UnitClass for Block {
 
 impl UnitClass for Unit {
     fn array(self) -> &'static UnitArray {
-        &UNITS[self.as_index()]
+        &UNITS[self.index()]
     }
 
     fn all_vec() -> Vec<Self> {
@@ -278,7 +293,7 @@ const ROW_CHARS: [char; 9] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
 
 impl From<Row> for char {
     fn from(row: Row) -> Self {
-        ROW_CHARS[row.as_index()]
+        ROW_CHARS[row.index()]
     }
 }
 
@@ -286,11 +301,10 @@ impl TryFrom<char> for Row {
     type Error = ();
 
     fn try_from(value: char) -> Result<Self, Self::Error> {
-        ROW_CHARS
-            .iter()
-            .position(|&c| c == value)
-            .map(Self::from_index_unchecked)
-            .ok_or(())
+        match ROW_CHARS.iter().position(|&c| c == value) {
+            Some(index) => Ok(Self::from_index(index)),
+            None => Err(()),
+        }
     }
 }
 

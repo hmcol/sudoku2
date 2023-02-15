@@ -14,7 +14,6 @@ pub const REVISE_NOTES: Strategy = Strategy {
 
             let elims = notes
                 .iter()
-                .copied()
                 .filter(|&digit| {
                     cell.iter_neighbors()
                         .any(|neighbor| board.get_digit(&neighbor) == Some(digit))

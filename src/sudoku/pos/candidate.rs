@@ -1,25 +1,29 @@
 use std::fmt;
 
-use super::{Cell, Digit};
+use crate::bitset::{impl_element_for_int_newtype, Element, U64array};
+
+use super::{macros::impl_bounded_int_newtype, Cell, Digit};
 
 // =============================================================================
 
 #[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Candidate(u16);
 
-super::macros::impl_bounded_int_newtype! { Candidate = u16 < 729 }
+impl_bounded_int_newtype! { Candidate = u16 < 729 }
+
+impl_element_for_int_newtype! { Candidate = u16 < 729 in U64array<12> }
 
 impl Candidate {
     pub fn from_cell_and_digit(cell: Cell, digit: Digit) -> Self {
-        Self::from_index_unchecked(cell.as_index() * 9 + digit.as_index())
+        Self::from_index(cell.index() * 9 + digit.index())
     }
 
     pub fn cell(self) -> Cell {
-        Cell::from_index_unchecked(self.as_index() / 9)
+        Cell::from_index(self.index() / 9)
     }
 
     pub fn digit(self) -> Digit {
-        Digit::from_index_unchecked(self.as_index() % 9)
+        Digit::from_index(self.index() % 9)
     }
 
     pub fn as_tuple(self) -> (Cell, Digit) {

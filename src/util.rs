@@ -2,6 +2,8 @@ use std::collections::HashSet;
 
 use itertools::Itertools;
 
+use crate::bitset::{Element, BitsRepr, BitSet};
+
 pub struct TryIntoArrayError;
 
 // =============================================================================
@@ -39,5 +41,11 @@ impl<T> TryIntoArray<T> for HashSet<T> {
 impl<T: Clone> TryIntoArray<T> for &HashSet<T> {
     fn try_into_array<const N: usize>(self) -> Result<[T; N]> {
         self.iter().cloned().collect_vec().try_into_array()
+    }
+}
+
+impl<E: Element, B: BitsRepr> TryIntoArray<E> for BitSet<E, B> {
+    fn try_into_array<const N: usize>(self) -> Result<[E; N]> {
+        self.iter().collect_vec().try_into_array()
     }
 }

@@ -1,6 +1,6 @@
-use std::collections::HashSet;
-
 use log::error;
+
+use crate::bitset::{Element, Set};
 
 use super::{Candidate, Cell, Digit};
 
@@ -9,12 +9,12 @@ use super::{Candidate, Cell, Digit};
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum CellData {
     Digit(Digit),
-    Notes(HashSet<Digit>),
+    Notes(Set<Digit>),
 }
 
 impl Default for CellData {
     fn default() -> CellData {
-        CellData::Notes(HashSet::from_iter(Digit::list()))
+        CellData::Notes(Set::full())
     }
 }
 
@@ -23,7 +23,7 @@ impl Default for CellData {
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Board {
     cell_data: [CellData; 81],
-    givens: HashSet<Cell>,
+    givens: Set<Cell>,
 }
 
 impl Board {
@@ -42,7 +42,7 @@ impl Board {
 
         Board {
             cell_data,
-            givens: HashSet::new(),
+            givens: Set::new(),
         }
     }
 
@@ -50,7 +50,7 @@ impl Board {
         let mut board = Board::new();
 
         for cell in Cell::list() {
-            let i = cell.as_index();
+            let i = cell.index();
             let digit = string.get(i..(i + 1)).and_then(|s| s.parse().ok());
 
             if digit.is_some() {
@@ -72,13 +72,13 @@ impl Board {
 
     pub fn get_data(&self, cell: &Cell) -> &CellData {
         self.cell_data
-            .get(cell.as_index())
+            .get(cell.index())
             .unwrap_or_else(|| panic!("Cell {cell} not found in board"))
     }
 
     fn get_data_mut(&mut self, cell: &Cell) -> &mut CellData {
         self.cell_data
-            .get_mut(cell.as_index())
+            .get_mut(cell.index())
             .unwrap_or_else(|| panic!("Cell {cell} not found in board"))
     }
 
@@ -89,14 +89,14 @@ impl Board {
         }
     }
 
-    pub fn get_notes(&self, cell: &Cell) -> Option<&HashSet<Digit>> {
+    pub fn get_notes(&self, cell: &Cell) -> Option<&Set<Digit>> {
         match self.get_data(cell) {
             CellData::Digit(_) => None,
             CellData::Notes(notes) => Some(notes),
         }
     }
 
-    fn get_notes_mut(&mut self, cell: &Cell) -> Option<&mut HashSet<Digit>> {
+    fn get_notes_mut(&mut self, cell: &Cell) -> Option<&mut Set<Digit>> {
         match self.get_data_mut(cell) {
             CellData::Digit(_) => None,
             CellData::Notes(notes) => Some(notes),
@@ -110,7 +110,7 @@ impl Board {
     }
 
     pub fn is_given(&self, cell: &Cell) -> bool {
-        self.givens.contains(cell)
+        self.givens.contains(*cell)
     }
 
     pub fn is_notes(&self, cell: &Cell) -> bool {
@@ -119,7 +119,7 @@ impl Board {
 
     pub fn has_note(&self, cell: &Cell, digit: Digit) -> bool {
         match self.get_notes(cell) {
-            Some(notes) => notes.contains(&digit),
+            Some(notes) => notes.contains(digit),
             None => false,
         }
     }
@@ -128,7 +128,7 @@ impl Board {
 
     pub fn reset(&mut self) {
         for ref cell in Cell::list() {
-            if self.givens.contains(cell) {
+            if self.givens.contains(*cell) {
                 continue;
             }
 
@@ -150,9 +150,11 @@ impl Board {
             return;
         };
 
-        if !notes.remove(&digit) {
+        if !notes.contains(digit) {
             error!("Cell {cell} does not contain note {digit}");
         }
+
+        notes.remove(digit);
     }
 
     // iterators ---------------------------------------------------------------

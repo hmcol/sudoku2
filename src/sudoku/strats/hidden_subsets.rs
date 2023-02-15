@@ -1,8 +1,9 @@
-use std::collections::HashSet;
-
 use itertools::Itertools;
 
-use crate::sudoku::{Board, Candidate, Digit, Unit};
+use crate::{
+    bitset::Set,
+    sudoku::{Board, Candidate, Digit, Unit},
+};
 
 use super::{Strategy, StrategyResult};
 
@@ -30,15 +31,15 @@ fn find_hidden_subset<const N: usize>(board: &Board) -> StrategyResult {
         let unsolved_digits_in_unit = unit
             .cells_iter()
             .filter_map(|cell| board.get_notes(&cell))
-            .fold(HashSet::new(), |acc, notes| &acc | notes);
+            .fold(Set::new(), |acc, &notes| acc | notes);
 
-        for digit_vec in unsolved_digits_in_unit.into_iter().combinations(N) {
-            let digit_set: HashSet<Digit> = digit_vec.into_iter().collect();
+        for digit_vec in unsolved_digits_in_unit.iter().combinations(N) {
+            let digit_set: Set<Digit> = digit_vec.into_iter().collect();
 
             let cell_set = unit
                 .cells_iter()
                 .filter_map(|cell| board.get_notes(&cell).map(|notes| (cell, notes)))
-                .filter(|(_, notes)| !(*notes & &digit_set).is_empty())
+                .filter(|(_, notes)| !(**notes & digit_set).is_empty())
                 .collect_vec();
 
             if cell_set.len() != N {
@@ -47,10 +48,10 @@ fn find_hidden_subset<const N: usize>(board: &Board) -> StrategyResult {
 
             let mut eliminations = Vec::new();
 
-            for (cell, notes) in cell_set {
-                let elims = notes
-                    .difference(&digit_set)
-                    .map(|&digit| Candidate::from_cell_and_digit(cell, digit));
+            for (cell, &notes) in cell_set {
+                let elims = (notes - digit_set)
+                    .iter()
+                    .map(|digit| Candidate::from_cell_and_digit(cell, digit));
 
                 eliminations.extend(elims);
             }
