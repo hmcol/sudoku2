@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 use log::error;
 
@@ -22,7 +22,7 @@ impl Default for CellData {
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Board {
-    cell_data: HashMap<Cell, CellData>,
+    cell_data: [CellData; 81],
     givens: HashSet<Cell>,
 }
 
@@ -30,9 +30,15 @@ impl Board {
     // constructors ------------------------------------------------------------
 
     pub fn new() -> Board {
-        let cell_data = Cell::list()
-            .map(|cell| (cell, CellData::default()))
-            .collect();
+        let mut cell_data_vec = Vec::with_capacity(81);
+
+        for _ in Cell::list() {
+            cell_data_vec.push(CellData::default());
+        }
+
+        let cell_data = cell_data_vec.try_into().unwrap_or_else(|_| {
+            panic!("Could not convert `Vec` to `[CellData; 81` while creating new board.")
+        });
 
         Board {
             cell_data,
@@ -41,14 +47,14 @@ impl Board {
     }
 
     pub fn from_string(string: &str) -> Board {
-        let mut cell_data = HashMap::new();
-        let mut givens = HashSet::new();
+        let mut board = Board::new();
 
-        for (i, cell) in Cell::list().enumerate() {
+        for cell in Cell::list() {
+            let i = cell.as_index();
             let digit = string.get(i..(i + 1)).and_then(|s| s.parse().ok());
 
             if digit.is_some() {
-                givens.insert(cell);
+                board.givens.insert(cell);
             }
 
             let data2 = match digit {
@@ -56,28 +62,24 @@ impl Board {
                 None => CellData::default(),
             };
 
-            cell_data.insert(cell, data2);
+            board.cell_data[i] = data2;
         }
 
-        Board { cell_data, givens }
+        board
     }
 
     // cell getters ------------------------------------------------------------
 
     pub fn get_data(&self, cell: &Cell) -> &CellData {
-        let Some(data) = self.cell_data.get(cell) else {
-            panic!("Cell {cell} not found in board");
-        };
-
-        data
+        self.cell_data
+            .get(cell.as_index())
+            .unwrap_or_else(|| panic!("Cell {cell} not found in board"))
     }
 
     fn get_data_mut(&mut self, cell: &Cell) -> &mut CellData {
-        let Some(data) = self.cell_data.get_mut(cell) else {
-            panic!("Cell {cell} not found in board");
-        };
-
-        data
+        self.cell_data
+            .get_mut(cell.as_index())
+            .unwrap_or_else(|| panic!("Cell {cell} not found in board"))
     }
 
     pub fn get_digit(&self, cell: &Cell) -> Option<Digit> {
@@ -125,19 +127,19 @@ impl Board {
     // mutators ----------------------------------------------------------------
 
     pub fn reset(&mut self) {
-        for (cell, data) in self.cell_data.iter_mut() {
+        for ref cell in Cell::list() {
             if self.givens.contains(cell) {
                 continue;
             }
 
-            *data = CellData::default();
+            *self.get_data_mut(cell) = CellData::default();
         }
     }
 
     pub fn input_solution(&mut self, candidate: Candidate) {
         let (cell, digit) = candidate.as_tuple();
 
-        self.cell_data.insert(cell, CellData::Digit(digit));
+        *self.get_data_mut(&cell) = CellData::Digit(digit);
     }
 
     pub fn input_elimination(&mut self, candidate: Candidate) {
