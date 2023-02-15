@@ -42,9 +42,6 @@ pub const STRATEGY_LIST: &[Strategy] = &[
 ];
 
 /// checklist:
-/// - xWing,
-/// - swordfish,
-/// - jellyfish,
 /// - skyscraper,
 /// - kite,
 /// - turbotFish,

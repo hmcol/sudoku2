@@ -29,6 +29,75 @@ impl_bounded_int_newtype! { Unit = u8 < 27 }
 
 // =============================================================================
 
+macro_rules! unit {
+    [$($index:literal),+ $(,)?] => {
+        [
+            $(
+                Cell::new_unchecked($index),
+            )+
+        ]
+    };
+}
+
+type UnitArray = [Cell; 9];
+
+pub const UNITS: &[UnitArray] = &[
+    // rows
+    unit![0, 1, 2, 3, 4, 5, 6, 7, 8],
+    unit![9, 10, 11, 12, 13, 14, 15, 16, 17],
+    unit![18, 19, 20, 21, 22, 23, 24, 25, 26],
+    unit![27, 28, 29, 30, 31, 32, 33, 34, 35],
+    unit![36, 37, 38, 39, 40, 41, 42, 43, 44],
+    unit![45, 46, 47, 48, 49, 50, 51, 52, 53],
+    unit![54, 55, 56, 57, 58, 59, 60, 61, 62],
+    unit![63, 64, 65, 66, 67, 68, 69, 70, 71],
+    unit![72, 73, 74, 75, 76, 77, 78, 79, 80],
+    // cols
+    unit![0, 9, 18, 27, 36, 45, 54, 63, 72],
+    unit![1, 10, 19, 28, 37, 46, 55, 64, 73],
+    unit![2, 11, 20, 29, 38, 47, 56, 65, 74],
+    unit![3, 12, 21, 30, 39, 48, 57, 66, 75],
+    unit![4, 13, 22, 31, 40, 49, 58, 67, 76],
+    unit![5, 14, 23, 32, 41, 50, 59, 68, 77],
+    unit![6, 15, 24, 33, 42, 51, 60, 69, 78],
+    unit![7, 16, 25, 34, 43, 52, 61, 70, 79],
+    unit![8, 17, 26, 35, 44, 53, 62, 71, 80],
+    // boxes
+    unit![0, 1, 2, 9, 10, 11, 18, 19, 20],
+    unit![3, 4, 5, 12, 13, 14, 21, 22, 23],
+    unit![6, 7, 8, 15, 16, 17, 24, 25, 26],
+    unit![27, 28, 29, 36, 37, 38, 45, 46, 47],
+    unit![30, 31, 32, 39, 40, 41, 48, 49, 50],
+    unit![33, 34, 35, 42, 43, 44, 51, 52, 53],
+    unit![54, 55, 56, 63, 64, 65, 72, 73, 74],
+    unit![57, 58, 59, 66, 67, 68, 75, 76, 77],
+    unit![60, 61, 62, 69, 70, 71, 78, 79, 80],
+];
+
+pub const ROWS: &[UnitArray] = &[
+    UNITS[0], UNITS[1], UNITS[2], UNITS[3], UNITS[4], UNITS[5], UNITS[6], UNITS[7], UNITS[8],
+];
+
+pub const COLS: &[UnitArray] = &[
+    UNITS[9], UNITS[10], UNITS[11], UNITS[12], UNITS[13], UNITS[14], UNITS[15], UNITS[16],
+    UNITS[17],
+];
+
+pub const BLOCKS: &[UnitArray] = &[
+    UNITS[18], UNITS[19], UNITS[20], UNITS[21], UNITS[22], UNITS[23], UNITS[24], UNITS[25],
+    UNITS[26],
+];
+
+pub const LINES: &[UnitArray] = &[
+    // rows
+    UNITS[0], UNITS[1], UNITS[2], UNITS[3], UNITS[4], UNITS[5], UNITS[6], UNITS[7], UNITS[8],
+    // cols
+    UNITS[9], UNITS[10], UNITS[11], UNITS[12], UNITS[13], UNITS[14], UNITS[15], UNITS[16],
+    UNITS[17],
+];
+
+// =============================================================================
+
 impl From<Row> for Line {
     fn from(row: Row) -> Line {
         Line(row.0)
@@ -102,138 +171,83 @@ impl Unit {
 
 // =============================================================================
 
-impl Row {
-    pub fn cells_iter(self) -> impl Iterator<Item = Cell> {
-        Col::list().map(move |col| Cell::from_row_and_col(self, col))
-    }
-
-    pub fn cells_set(self) -> HashSet<Cell> {
-        self.cells_iter().collect()
-    }
-}
-
-impl Col {
-    pub fn cells_iter(self) -> impl Iterator<Item = Cell> {
-        Row::list().map(move |row| Cell::from_row_and_col(row, self))
-    }
-
-    pub fn cells_set(self) -> HashSet<Cell> {
-        self.cells_iter().collect()
-    }
-}
-
-impl Line {
-    pub fn cells_set(self) -> HashSet<Cell> {
-        match self.line_type() {
-            LineType::Row(row) => row.cells_set(),
-            LineType::Col(col) => col.cells_set(),
+macro_rules! impl_cells_iter {
+    ($name:ty) => {
+        impl $name {
+            pub fn cells_iter(self) -> impl Iterator<Item = Cell> {
+                self.array().iter().copied()
+            }
         }
-    }
-
-    pub fn cells_iter(self) -> impl Iterator<Item = Cell> {
-        self.cells_set().into_iter()
-    }
+    };
 }
 
-impl Block {
-    pub fn cells_iter(self) -> impl Iterator<Item = Cell> {
-        let row_start = self.as_index() / 3 * 3;
-        let col_start = self.as_index() % 3 * 3;
-
-        (row_start..row_start + 3)
-            .cartesian_product(col_start..col_start + 3)
-            .map(|(row, col)| {
-                Cell::from_row_and_col(
-                    Row::from_index_unchecked(row),
-                    Col::from_index_unchecked(col),
-                )
-            })
-    }
-
-    pub fn cells_set(self) -> HashSet<Cell> {
-        self.cells_iter().collect()
-    }
-}
-
-impl Unit {
-    pub fn cells_set(self) -> HashSet<Cell> {
-        match self.unit_type() {
-            UnitType::Row(row) => row.cells_set(),
-            UnitType::Col(col) => col.cells_set(),
-            UnitType::Block(block) => block.cells_set(),
-        }
-    }
-
-    pub fn cells_iter(self) -> impl Iterator<Item = Cell> {
-        self.cells_set().into_iter()
-    }
-}
+impl_cells_iter! { Row }
+impl_cells_iter! { Col }
+impl_cells_iter! { Block }
+impl_cells_iter! { Line }
+impl_cells_iter! { Unit }
 
 // =============================================================================
 
 pub trait UnitClass: Copy + Sized {
     fn all_vec() -> Vec<Self>;
-    fn cells_set(self) -> HashSet<Cell>;
-    fn cells_vec(self) -> Vec<Cell>;
+    fn array(self) -> &'static UnitArray;
+    fn cells_set(self) -> HashSet<Cell> {
+        self.array().iter().copied().collect()
+    }
+    #[deprecated]
+    fn cells_vec(self) -> Vec<Cell> {
+        self.array().to_vec()
+    }
 }
 
 impl UnitClass for Row {
+    fn array(self) -> &'static UnitArray {
+        &ROWS[self.as_index()]
+    }
+
     fn all_vec() -> Vec<Self> {
         Row::list().collect_vec()
-    }
-    fn cells_set(self) -> HashSet<Cell> {
-        self.cells_iter().collect()
-    }
-    fn cells_vec(self) -> Vec<Cell> {
-        self.cells_iter().collect_vec()
     }
 }
 
 impl UnitClass for Col {
+    fn array(self) -> &'static UnitArray {
+        &COLS[self.as_index()]
+    }
+
     fn all_vec() -> Vec<Self> {
         Col::list().collect_vec()
-    }
-    fn cells_set(self) -> HashSet<Cell> {
-        self.cells_iter().collect()
-    }
-    fn cells_vec(self) -> Vec<Cell> {
-        self.cells_iter().collect_vec()
     }
 }
 
 impl UnitClass for Line {
+    fn array(self) -> &'static UnitArray {
+        &LINES[self.as_index()]
+    }
+
     fn all_vec() -> Vec<Self> {
         Line::list().collect_vec()
-    }
-    fn cells_set(self) -> HashSet<Cell> {
-        self.cells_iter().collect()
-    }
-    fn cells_vec(self) -> Vec<Cell> {
-        self.cells_iter().collect_vec()
     }
 }
 
 impl UnitClass for Block {
+    fn array(self) -> &'static UnitArray {
+        &BLOCKS[self.as_index()]
+    }
+
     fn all_vec() -> Vec<Self> {
         Block::list().collect_vec()
-    }
-    fn cells_set(self) -> HashSet<Cell> {
-        self.cells_iter().collect()
-    }
-    fn cells_vec(self) -> Vec<Cell> {
-        self.cells_iter().collect_vec()
     }
 }
 
 impl UnitClass for Unit {
+    fn array(self) -> &'static UnitArray {
+        &UNITS[self.as_index()]
+    }
+
     fn all_vec() -> Vec<Self> {
         Unit::list().collect_vec()
-    }
-    fn cells_set(self) -> HashSet<Cell> {
-        self.cells_iter().collect()
-    }
-    fn cells_vec(self) -> Vec<Cell> {
-        self.cells_iter().collect_vec()
     }
 }
 

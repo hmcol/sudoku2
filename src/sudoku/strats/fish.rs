@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use itertools::Itertools;
 
-use crate::sudoku::{pos::UnitClass, Board, Cell, Col, Digit, Row, Candidate};
+use crate::sudoku::{pos::UnitClass, Board, Candidate, Cell, Col, Digit, Row};
 
 use super::{Strategy, StrategyResult};
 
@@ -39,18 +39,13 @@ fn find_fish<const N: usize, Base: UnitClass, Cover: UnitClass>(board: &Board) -
     for x in Digit::list() {
         let base_units_with_x = Base::all_vec()
             .into_iter()
-            .filter(|base_unit| {
-                base_unit
-                    .cells_vec()
-                    .into_iter()
-                    .any(|cell| board.has_note(&cell, x))
-            })
+            .filter(|base_unit| base_unit.array().iter().any(|cell| board.has_note(cell, x)))
             .collect_vec();
 
         for base_units in base_units_with_x.into_iter().combinations(N) {
             let base_cells: HashSet<Cell> = base_units
                 .into_iter()
-                .flat_map(|base_unit| base_unit.cells_vec())
+                .flat_map(|base_unit| base_unit.array().to_vec())
                 .collect();
 
             let cover_units = Cover::all_vec()
@@ -59,7 +54,7 @@ fn find_fish<const N: usize, Base: UnitClass, Cover: UnitClass>(board: &Board) -
                 .find(|cover_units| {
                     let cover_cells_set: HashSet<Cell> = cover_units
                         .iter()
-                        .flat_map(|cover_unit| cover_unit.cells_vec())
+                        .flat_map(|cover_unit| cover_unit.array().to_vec())
                         .collect();
 
                     cover_cells_set.is_superset(&base_cells)
@@ -71,7 +66,7 @@ fn find_fish<const N: usize, Base: UnitClass, Cover: UnitClass>(board: &Board) -
 
             let cover_cells: HashSet<Cell> = cover_units
                 .into_iter()
-                .flat_map(|cover_unit| cover_unit.cells_vec())
+                .flat_map(|cover_unit| cover_unit.array().to_vec())
                 .collect();
 
             let eliminations = cover_cells
@@ -80,7 +75,7 @@ fn find_fish<const N: usize, Base: UnitClass, Cover: UnitClass>(board: &Board) -
                 .copied()
                 .map(|cell| Candidate::from_cell_and_digit(cell, x))
                 .collect_vec();
-            
+
             if eliminations.is_empty() {
                 continue;
             }

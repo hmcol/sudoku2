@@ -24,9 +24,10 @@ fn find_intersection<Base: UnitClass, Cover: UnitClass>(board: &Board) -> Strate
     for x in Digit::list() {
         for base_unit in Base::all_vec() {
             let x_base_cells: HashSet<Cell> = base_unit
-                .cells_vec()
-                .into_iter()
-                .filter(|&cell| board.has_note(&cell, x))
+                .array()
+                .iter()
+                .filter(|cell| board.has_note(cell, x))
+                .copied()
                 .collect();
 
             if x_base_cells.len() < 2 {
@@ -40,10 +41,12 @@ fn find_intersection<Base: UnitClass, Cover: UnitClass>(board: &Board) -> Strate
             };
 
             let eliminations = cover_unit
-                .cells_vec()
+                .array()
+                .iter()
                 .into_iter()
                 .filter(|cell| board.has_note(cell, x))
                 .filter(|cell| !x_base_cells.contains(cell))
+                .copied()
                 .map(|cell| Candidate::from_cell_and_digit(cell, x))
                 .collect_vec();
 
