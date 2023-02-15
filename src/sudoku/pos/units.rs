@@ -195,10 +195,6 @@ pub trait UnitClass: Copy + Sized {
     fn cells_set(self) -> HashSet<Cell> {
         self.array().iter().copied().collect()
     }
-    #[deprecated]
-    fn cells_vec(self) -> Vec<Cell> {
-        self.array().to_vec()
-    }
 }
 
 impl UnitClass for Row {
