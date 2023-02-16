@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use itertools::Itertools;
 
-use crate::bitset::{Element, BitsRepr, BitSet};
+use crate::bitset::{BitSet, BitsRepr, Element};
 
 pub struct TryIntoArrayError;
 

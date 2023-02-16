@@ -1,8 +1,8 @@
 use itertools::Itertools;
 
 use crate::{
-    sudoku::{Digit, Unit},
-    util::TryIntoArray,
+    sudoku::{Digit, Unit, Cell},
+    util::TryIntoArray, bitset::Set,
 };
 
 use super::{Strategy, StrategyResult};
@@ -15,10 +15,10 @@ pub const FULL_HOUSE: Strategy = Strategy {
         let mut solutions = Vec::new();
 
         for unit in Unit::list() {
-            let unsolved_cells = unit
+            let unsolved_cells: Set<Cell> = unit
                 .cells_iter()
                 .filter(|&cell| board.get_digit(&cell).is_none())
-                .collect_vec();
+                .collect();
 
             let Ok(cell) = unsolved_cells.try_singleton() else {
                 continue;

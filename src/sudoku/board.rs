@@ -37,7 +37,7 @@ impl Board {
         }
 
         let cell_data = cell_data_vec.try_into().unwrap_or_else(|_| {
-            panic!("Could not convert `Vec` to `[CellData; 81` while creating new board.")
+            panic!("Could not convert `Vec` to `[CellData; 81]` while creating new board.")
         });
 
         Board {
@@ -160,6 +160,6 @@ impl Board {
     // iterators ---------------------------------------------------------------
 
     pub fn iter_unsolved_cells(&self) -> impl Iterator<Item = Cell> + '_ {
-        Cell::list().filter(|cell| matches!(self.get_data(cell), CellData::Notes(_)))
+        Cell::list().filter(|cell| self.is_notes(cell))
     }
 }

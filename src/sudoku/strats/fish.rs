@@ -38,24 +38,25 @@ fn find_basic_fish<const N: usize>(board: &Board) -> StrategyResult {
 
 fn find_fish<const N: usize, Base: UnitClass, Cover: UnitClass>(board: &Board) -> StrategyResult {
     for x in Digit::list() {
-        let base_units_with_x = Base::all_vec()
-            .into_iter()
+        let base_units_with_x = Base::iter_all()
             .filter(|base_unit| base_unit.array().iter().any(|cell| board.has_note(cell, x)))
             .collect_vec();
 
         for base_units in base_units_with_x.into_iter().combinations(N) {
             let base_cells: Set<Cell> = base_units
                 .into_iter()
-                .flat_map(|base_unit| base_unit.array().to_vec())
+                .flat_map(|base_unit| base_unit.array())
+                .copied()
                 .collect();
 
-            let cover_units = Cover::all_vec()
-                .into_iter()
+            let cover_units = Cover::all_slice()
+                .iter()
                 .combinations(N)
                 .find(|cover_units| {
                     let cover_cells_set: Set<Cell> = cover_units
                         .iter()
-                        .flat_map(|cover_unit| cover_unit.array().to_vec())
+                        .flat_map(|cover_unit| cover_unit.array())
+                        .copied()
                         .collect();
 
                     cover_cells_set.is_superset(&base_cells)
@@ -67,7 +68,8 @@ fn find_fish<const N: usize, Base: UnitClass, Cover: UnitClass>(board: &Board) -
 
             let cover_cells: Set<Cell> = cover_units
                 .into_iter()
-                .flat_map(|cover_unit| cover_unit.array().to_vec())
+                .flat_map(|cover_unit| cover_unit.array())
+                .copied()
                 .collect();
 
             let eliminations = (cover_cells - base_cells)

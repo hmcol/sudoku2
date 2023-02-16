@@ -38,11 +38,40 @@ impl_element_for_int_newtype! { Unit = u8 < 27 in u16 }
 
 // =============================================================================
 
-macro_rules! unit {
-    [$($index:literal),+ $(,)?] => {
+macro_rules! wrap_array {
+    ($Ty:ident[$($val:literal),* $(,)?]) => {
         [
             $(
-                Cell::new_unchecked($index),
+                $Ty($val),
+            )*
+        ]
+    };
+}
+
+pub const ROW_INDICES: &[Row] = &wrap_array!(Row[0, 1, 2, 3, 4, 5, 6, 7, 8]);
+pub const COL_INDICES: &[Col] = &wrap_array!(Col[0, 1, 2, 3, 4, 5, 6, 7, 8]);
+pub const BLOCK_INDICES: &[Block] = &wrap_array!(Block[0, 1, 2, 3, 4, 5, 6, 7, 8]);
+pub const LINE_INDICES: &[Line] = &wrap_array!(
+    Line[
+        0, 1, 2, 3, 4, 5, 6, 7, 8,
+        9, 10, 11, 12, 13, 14, 15, 16, 17
+    ]
+);
+pub const UNIT_INDICES: &[Unit] = &wrap_array!(
+    Unit[
+        0, 1, 2, 3, 4, 5, 6, 7, 8,
+        9, 10, 11, 12, 13, 14, 15, 16, 17,
+        18, 19, 20, 21, 22, 23, 24, 25, 26
+    ]
+);
+
+// =============================================================================
+
+macro_rules! unit {
+    [$($val:literal),+ $(,)?] => {
+        [
+            $(
+                Cell::new_unchecked($val),
             )+
         ]
     };
@@ -198,7 +227,12 @@ impl_cells_iter! { Unit }
 
 // =============================================================================
 
-pub trait UnitClass: Copy + Sized {
+pub trait UnitClass: Copy + Sized + 'static {
+    fn iter_all() -> std::iter::Copied<std::slice::Iter<'static, Self>> {
+        Self::all_slice().iter().copied()
+    }
+    fn all_slice() -> &'static [Self];
+    #[deprecated]
     fn all_vec() -> Vec<Self>;
     fn array(self) -> &'static UnitArray;
     fn cells_set(self) -> Set<Cell> {
@@ -213,6 +247,10 @@ pub trait UnitClass: Copy + Sized {
 }
 
 impl UnitClass for Row {
+    fn all_slice() -> &'static [Self] {
+        ROW_INDICES
+    }
+
     fn array(self) -> &'static UnitArray {
         &ROWS[self.index()]
     }
@@ -223,6 +261,10 @@ impl UnitClass for Row {
 }
 
 impl UnitClass for Col {
+    fn all_slice() -> &'static [Self] {
+        COL_INDICES
+    }
+
     fn array(self) -> &'static UnitArray {
         &COLS[self.index()]
     }
@@ -233,6 +275,10 @@ impl UnitClass for Col {
 }
 
 impl UnitClass for Line {
+    fn all_slice() -> &'static [Self] {
+        LINE_INDICES
+    }
+
     fn array(self) -> &'static UnitArray {
         &LINES[self.index()]
     }
@@ -243,6 +289,10 @@ impl UnitClass for Line {
 }
 
 impl UnitClass for Block {
+    fn all_slice() -> &'static [Self] {
+        BLOCK_INDICES
+    }
+
     fn array(self) -> &'static UnitArray {
         &BLOCKS[self.index()]
     }
@@ -253,6 +303,10 @@ impl UnitClass for Block {
 }
 
 impl UnitClass for Unit {
+    fn all_slice() -> &'static [Self] {
+        UNIT_INDICES
+    }
+
     fn array(self) -> &'static UnitArray {
         &UNITS[self.index()]
     }
