@@ -159,7 +159,33 @@ impl Board {
 
     // iterators ---------------------------------------------------------------
 
-    pub fn iter_unsolved_cells(&self) -> impl Iterator<Item = Cell> + '_ {
+    pub fn iter_solved(&self) -> impl Iterator<Item = Cell> + '_ {
+        Cell::list().filter(|cell| self.is_digit(cell))
+    }
+
+    pub fn iter_unsolved(&self) -> impl Iterator<Item = Cell> + '_ {
         Cell::list().filter(|cell| self.is_notes(cell))
+    }
+
+    pub fn iter_with_digit(&self, digit: Digit) -> impl Iterator<Item = Cell> + '_ {
+        Cell::list().filter(move |cell| self.get_digit(cell) == Some(digit))
+    }
+
+    pub fn iter_with_note(&self, digit: Digit) -> impl Iterator<Item = Cell> + '_ {
+        Cell::list().filter(move |cell| self.has_note(cell, digit))
+    }
+
+    // cell sets ---------------------------------------------------------------
+
+    pub fn cells_unsolved(&self) -> Set<Cell> {
+        self.iter_unsolved().collect()
+    }
+
+    pub fn cells_with_digit(&self, digit: Digit) -> Set<Cell> {
+        self.iter_with_digit(digit).collect()
+    }
+
+    pub fn cells_with_note(&self, digit: Digit) -> Set<Cell> {
+        self.iter_with_note(digit).collect()
     }
 }

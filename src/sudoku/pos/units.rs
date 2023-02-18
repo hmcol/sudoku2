@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use itertools::Itertools;
 
 use crate::bitset::{impl_element_for_int_newtype, Element, Set};
@@ -227,7 +229,8 @@ impl_cells_iter! { Unit }
 
 // =============================================================================
 
-pub trait UnitClass: Copy + Sized + 'static {
+pub trait UnitClass: Copy + Debug + 'static {
+    const NAME: &'static str;
     fn iter_all() -> std::iter::Copied<std::slice::Iter<'static, Self>> {
         Self::all_slice().iter().copied()
     }
@@ -247,6 +250,9 @@ pub trait UnitClass: Copy + Sized + 'static {
 }
 
 impl UnitClass for Row {
+    const NAME: &'static str = "row";
+    
+
     fn all_slice() -> &'static [Self] {
         ROW_INDICES
     }
@@ -258,9 +264,13 @@ impl UnitClass for Row {
     fn all_vec() -> Vec<Self> {
         Row::list().collect_vec()
     }
+
 }
 
 impl UnitClass for Col {
+    const NAME: &'static str = "col";
+
+
     fn all_slice() -> &'static [Self] {
         COL_INDICES
     }
@@ -275,6 +285,9 @@ impl UnitClass for Col {
 }
 
 impl UnitClass for Line {
+    const NAME: &'static str = "line";
+
+
     fn all_slice() -> &'static [Self] {
         LINE_INDICES
     }
@@ -289,6 +302,8 @@ impl UnitClass for Line {
 }
 
 impl UnitClass for Block {
+    const NAME: &'static str = "block";
+
     fn all_slice() -> &'static [Self] {
         BLOCK_INDICES
     }
@@ -303,6 +318,8 @@ impl UnitClass for Block {
 }
 
 impl UnitClass for Unit {
+    const NAME: &'static str = "unit";
+
     fn all_slice() -> &'static [Self] {
         UNIT_INDICES
     }
@@ -395,5 +412,29 @@ impl std::fmt::Display for Line {
 impl std::fmt::Debug for Line {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "Col({self})")
+    }
+}
+
+impl std::fmt::Display for Block {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.0 + 1)
+    }
+}
+
+impl std::fmt::Debug for Block {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "Col({self})")
+    }
+}
+
+impl std::fmt::Display for Unit {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.0 + 1)
+    }
+}
+
+impl std::fmt::Debug for Unit {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "Unit({self})")
     }
 }

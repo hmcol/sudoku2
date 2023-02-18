@@ -1,4 +1,4 @@
-use crate::sudoku::Candidate;
+use crate::{bitset::Set, sudoku::Candidate};
 
 use super::{Strategy, StrategyResult};
 
@@ -7,22 +7,17 @@ use super::{Strategy, StrategyResult};
 pub const REVISE_NOTES: Strategy = Strategy {
     name: "Revise Notes",
     find: |board| {
-        let mut result = StrategyResult::default();
+        let mut elims = Set::<Candidate>::new();
 
-        for cell in board.iter_unsolved_cells() {
-            let notes = board.get_notes(&cell).unwrap();
+        for cell in board.iter_solved() {
+            let x = board.get_digit(&cell).unwrap();
 
-            let elims = notes
-                .iter()
-                .filter(|&digit| {
-                    cell.iter_neighbors()
-                        .any(|neighbor| board.get_digit(&neighbor) == Some(digit))
-                })
-                .map(|digit| Candidate::from_cell_and_digit(cell, digit));
-
-            result.eliminations.extend(elims);
+            elims |= (cell.neighbors() & board.cells_with_note(x)).map(|cell| (cell, x).into());
         }
 
-        result
+        StrategyResult {
+            eliminations: elims.into_iter().collect(),
+            ..Default::default()
+        }
     },
 };

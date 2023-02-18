@@ -2,7 +2,7 @@ use itertools::Itertools;
 
 use crate::{
     bitset::Set,
-    sudoku::{pos::UnitClass, Board, Candidate, Cell, Col, Digit, Row},
+    sudoku::{pos::UnitClass, Board, Cell, Col, Digit, Row},
 };
 
 use super::{Strategy, StrategyResult};
@@ -38,49 +38,30 @@ fn find_basic_fish<const N: usize>(board: &Board) -> StrategyResult {
 
 fn find_fish<const N: usize, Base: UnitClass, Cover: UnitClass>(board: &Board) -> StrategyResult {
     for x in Digit::list() {
-        let base_units_with_x = Base::iter_all()
-            .filter(|base_unit| base_unit.array().iter().any(|cell| board.has_note(cell, x)))
-            .collect_vec();
-
-        for base_units in base_units_with_x.into_iter().combinations(N) {
-            let base_cells: Set<Cell> = base_units
-                .into_iter()
-                .flat_map(|base_unit| base_unit.array())
-                .copied()
-                .collect();
-
-            let cover_units = Cover::all_slice()
-                .iter()
+        for base_cells in Base::iter_all()
+            .map(|unit| unit.cells_set() & board.cells_with_note(x))
+            .filter(Set::is_nonempty)
+            .combinations(N)
+            .map(|units| units.into_iter().sum::<Set<Cell>>())
+        {
+            let cover_cells = Cover::iter_all()
+                .map(|unit| unit.cells_set() & board.cells_with_note(x))
+                .filter(Set::is_nonempty)
                 .combinations(N)
-                .find(|cover_units| {
-                    let cover_cells_set: Set<Cell> = cover_units
-                        .iter()
-                        .flat_map(|cover_unit| cover_unit.array())
-                        .copied()
-                        .collect();
+                .map(|cover_units| cover_units.into_iter().sum())
+                .find(|cover_cells| &base_cells <= cover_cells);
 
-                    cover_cells_set.is_superset(&base_cells)
-                });
-
-            let Some(cover_units) = cover_units else {
+            let Some(cover_cells) = cover_cells else {
                 continue;
             };
 
-            let cover_cells: Set<Cell> = cover_units
-                .into_iter()
-                .flat_map(|cover_unit| cover_unit.array())
-                .copied()
-                .collect();
+            let elim_set = cover_cells - base_cells;
 
-            let eliminations = (cover_cells - base_cells)
-                .iter()
-                .filter(|cell| board.has_note(cell, x))
-                .map(|cell| Candidate::from_cell_and_digit(cell, x))
-                .collect_vec();
-
-            if eliminations.is_empty() {
+            if elim_set.is_empty() {
                 continue;
             }
+
+            let eliminations = elim_set.iter().map(|cell| (cell, x).into()).collect_vec();
 
             return StrategyResult {
                 eliminations,

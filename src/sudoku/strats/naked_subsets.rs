@@ -2,7 +2,7 @@ use itertools::Itertools;
 
 use crate::{
     bitset::Set,
-    sudoku::{pos::UnitClass, Board, Candidate, Cell, Unit},
+    sudoku::{pos::UnitClass, Board, Candidate, Cell, Digit, Unit},
 };
 
 use super::{Strategy, StrategyResult};
@@ -28,35 +28,30 @@ pub const NAKED_QUAD: Strategy = Strategy {
 
 fn find_naked_subset<const N: usize>(board: &Board) -> StrategyResult {
     for unit in Unit::list() {
-        let unsolved_cells: Set<Cell> = unit
-            .array()
-            .iter()
-            .filter(|cell| board.is_notes(cell))
-            .copied()
-            .collect();
+        let unsolved_cells = unit.cells_set() & board.cells_unsolved();
 
         for cell_vec in unsolved_cells.iter().combinations(N) {
-            let cell_set: Set<Cell> = cell_vec.into_iter().collect();
-
-            let digit_set = cell_set
+            let digit_set: Set<Digit> = cell_vec
                 .iter()
-                .map(|cell| board.get_notes(&cell).unwrap())
-                .fold(Set::new(), |acc, &notes| acc | notes);
+                .map(|cell| board.get_notes(cell).unwrap())
+                .sum();
 
             if digit_set.len() != N {
                 continue;
             }
 
+            let cell_set: Set<Cell> = cell_vec.into_iter().collect();
+
             let mut eliminations = Vec::new();
 
-            for cell in (unsolved_cells - cell_set).iter() {
+            for cell in unsolved_cells - cell_set {
                 let notes = board.get_notes(&cell).unwrap();
 
-                let elims = (*notes & digit_set)
-                    .iter()
-                    .map(|digit| Candidate::from_cell_and_digit(cell, digit));
-
-                eliminations.extend(elims);
+                eliminations.extend(
+                    (*notes & digit_set)
+                        .iter()
+                        .map(|digit| Candidate::from_cell_and_digit(cell, digit)),
+                );
             }
 
             if eliminations.is_empty() {

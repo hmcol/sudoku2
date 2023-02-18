@@ -2,10 +2,12 @@
     "cSpell.words": [
         "binop",
         "bitand",
+        "bivalue",
         "callout",
         "elim",
         "elims",
         "itertools",
+        "lowlight",
         "newtype",
         "nongiven",
         "onclick",

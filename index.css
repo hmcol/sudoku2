@@ -61,7 +61,7 @@ body {
     background-color: var(--base-color);
 }
 
-.cell.restricted {
+.cell.lowlight {
     background-color: var(--dark-color);
 }
 

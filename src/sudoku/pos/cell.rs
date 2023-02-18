@@ -2,7 +2,7 @@ use std::{fmt, str::FromStr};
 
 use crate::bitset::{impl_element_for_int_newtype, Element, Set};
 
-use super::{macros::impl_bounded_int_newtype, Block, Col, Row, UnitClass};
+use super::{macros::impl_bounded_int_newtype, Block, Col, Row, UnitClass, Unit};
 
 // =============================================================================
 
@@ -30,7 +30,15 @@ impl Cell {
         Block::from_index((self.row().index() / 3) * 3 + (self.col().index() / 3))
     }
 
-    pub fn iter_neighbors(self) -> impl Iterator<Item = Self> {
+    pub fn units(self) -> [Unit; 3] {
+        [
+            self.row().into(),
+            self.col().into(),
+            self.block().into(),
+        ]
+    }
+
+    pub fn neighbors(self) -> Set<Self> {
         let mut neighbors = Set::new();
 
         for cell in self.block().array() {
@@ -45,7 +53,11 @@ impl Cell {
             neighbors.insert(*cell);
         }
 
-        neighbors.iter()
+        neighbors
+    }
+
+    pub fn iter_neighbors(self) -> impl Iterator<Item = Self> {
+        self.neighbors().iter()
     }
 }
 

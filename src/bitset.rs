@@ -1,6 +1,7 @@
 use std::{
+    cmp::Ordering,
     marker::PhantomData,
-    ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, Not, Sub},
+    ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, Not, Sub}, iter::Sum,
 };
 
 // =============================================================================
@@ -50,6 +51,9 @@ pub trait BitsRepr:
 
     /// number of trailing zeros / index of first bit set to one
     fn trailing_zeros(self) -> usize;
+
+    /// number of leading zeros
+    fn leading_zeros(self) -> usize;
 }
 
 macro_rules! impl_bits_repr_for_int {
@@ -71,6 +75,10 @@ macro_rules! impl_bits_repr_for_int {
 
             fn trailing_zeros(self) -> usize {
                 self.trailing_zeros() as usize
+            }
+
+            fn leading_zeros(self) -> usize {
+                self.leading_zeros() as usize
             }
         }
     };
@@ -181,11 +189,21 @@ impl<const N: usize> BitsRepr for U64array<N> {
 
         64 * N
     }
+
+    fn leading_zeros(self) -> usize {
+        for (i, x) in self.0.iter().enumerate().rev() {
+            if *x != 0 {
+                return i * 64 + x.leading_zeros() as usize;
+            }
+        }
+
+        64 * N
+    }
 }
 
 // =============================================================================
 
-pub trait Element: Copy {
+pub trait Element: Copy + Eq {
     /// representation of bits used for a set of this element type
     type Repr: BitsRepr;
 
@@ -288,6 +306,16 @@ impl<E: Element, B: BitsRepr> BitSet<E, B> {
         Iter::with_bits(self.bits)
     }
 
+    pub fn map<E2: Element, F: Fn(E) -> E2>(&self, f: F) -> BitSet<E2, <E2 as Element>::Repr> {
+        let mut bits = <E2 as Element>::Repr::ZERO;
+
+        for e in self.iter() {
+            bits |= <E2 as Element>::Repr::single(f(e).index());
+        }
+
+        BitSet::with_bits(bits)
+    }
+
     /// returns the number of elements in the set.
     pub fn len(&self) -> usize {
         self.bits.count_ones()
@@ -296,6 +324,11 @@ impl<E: Element, B: BitsRepr> BitSet<E, B> {
     /// returns `true` if the set contains no elements.
     pub fn is_empty(&self) -> bool {
         self.bits == B::ZERO
+    }
+
+    /// returns `true` if the set contains any elements.
+    pub fn is_nonempty(&self) -> bool {
+        self.bits != B::ZERO
     }
 
     /// clears the set, removing all elements.
@@ -334,6 +367,17 @@ impl<E: Element, B: BitsRepr> BitSet<E, B> {
     /// removes an element from the set.
     pub fn remove(&mut self, element: E) {
         self.bits &= !B::single(element.index());
+    }
+}
+
+// =============================================================================
+
+impl<E: Element, B: BitsRepr> IntoIterator for BitSet<E, B> {
+    type Item = E;
+    type IntoIter = Iter<E, B>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
     }
 }
 
@@ -387,6 +431,12 @@ impl<E: Element, B: BitsRepr> FromIterator<E> for BitSet<E, B> {
     }
 }
 
+impl<E: Element, B: BitsRepr> From<&[E]> for BitSet<E, B> {
+    fn from(slice: &[E]) -> Self {
+        slice.iter().copied().collect()
+    }
+}
+
 // =============================================================================
 
 // operations
@@ -400,6 +450,12 @@ impl<E: Element, B: BitsRepr> BitOr for BitSet<E, B> {
 
     fn bitor(self, rhs: Self) -> Self::Output {
         Self::with_bits(self.bits | rhs.bits)
+    }
+}
+
+impl<E: Element, B: BitsRepr> BitOrAssign for BitSet<E, B> {
+    fn bitor_assign(&mut self, rhs: Self) {
+        self.bits |= rhs.bits;
     }
 }
 
@@ -419,7 +475,63 @@ impl<E: Element, B: BitsRepr> Sub for BitSet<E, B> {
     }
 }
 
+impl<E: Element, B: BitsRepr> Sum for BitSet<E, B> {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::new(), |acc, set| acc | set)
+    }
+}
 
+impl<'a, E: Element, B: BitsRepr> Sum<&'a Self> for BitSet<E, B> {
+    fn sum<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
+        iter.fold(Self::new(), |acc, &set| acc | set)
+    }
+}
+
+
+// =============================================================================
+
+impl<E: Element, B: BitsRepr> PartialOrd for BitSet<E, B> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if self == other {
+            Some(Ordering::Equal)
+        } else if self.is_subset(other) {
+            Some(Ordering::Less)
+        } else if self.is_superset(other) {
+            Some(Ordering::Greater)
+        } else {
+            None
+        }
+    }
+}
+
+// =============================================================================
+
+mod fmt {
+    use std::fmt::*;
+
+    use super::*;
+
+    impl<E, B> Binary for BitSet<E, B>
+    where
+        E: Element,
+        B: BitsRepr + Binary,
+    {
+        fn fmt(&self, f: &mut Formatter) -> Result {
+            let mut lz = self.bits.leading_zeros() - (B::SIZE - E::MAX);
+
+            if self.is_empty() && lz > 0 {
+                lz -= 1;
+            }
+
+            write!(
+                f,
+                "{}{:b}",
+                "0".repeat(lz),
+                self.bits
+            )
+        }
+    }
+}
 
 // =============================================================================
 
@@ -453,4 +565,45 @@ fn temp() {
     let size = std::mem::size_of::<U64array<3>>();
 
     println!("size = {size}");
+}
+
+#[cfg(test)]
+mod tests {
+    use itertools::Itertools;
+
+    use super::*;
+
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    struct Elt(u8);
+
+    impl_element_for_int_newtype! { Elt = u8 < 8 in u8 }
+
+    #[test]
+    fn insert_contains() {
+        let mut set = Set::new();
+
+        for i in 0..8 {
+            assert!(!set.contains(Elt(i)));
+        }
+
+        set.insert(Elt(0));
+
+        assert!(set.contains(Elt(0)));
+
+        for i in 1..8 {
+            assert!(!set.contains(Elt(i)));
+        }
+    }
+
+    #[test]
+    fn subset() {
+        let ps = (0..4)
+            .powerset()
+            .map(|v| v.into_iter().map(Elt).collect::<Set<Elt>>())
+            .collect_vec();
+
+        for (s, t) in ps.iter().tuple_combinations() {
+            println!("{s:b} <= {t:b} = {}", s <= t);
+        }
+    }
 }

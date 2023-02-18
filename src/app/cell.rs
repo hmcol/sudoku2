@@ -27,6 +27,15 @@ pub fn CellComponent(props: &CellProps) -> Html {
 
     // derive attributes -------------------------------------------------------
 
+    let lowlight = if let Some(focus_digit) = solver.focus_digit {
+        match solver.board.get_data(&cell) {
+            CellData::Digit(digit) => *digit != focus_digit,
+            CellData::Notes(notes) => !notes.contains(focus_digit),
+        }
+    } else {
+        false
+    }.then_some("lowlight");
+
     let on_click = Callback::<MouseEvent>::from(move |_| callbacks.on_click_cell.emit(cell));
 
     let content = match solver.board.get_data(&cell).clone() {
@@ -48,7 +57,7 @@ pub fn CellComponent(props: &CellProps) -> Html {
 
     html! {
         <ContextProvider<Cell> context={cell}>
-            <div class={classes!("cell")}
+            <div class={classes!("cell", lowlight)}
                 onclick={on_click}
             >
                 { content }

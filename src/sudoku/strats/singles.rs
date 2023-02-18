@@ -1,8 +1,6 @@
-use itertools::Itertools;
-
 use crate::{
-    sudoku::{Digit, Unit, Cell},
-    util::TryIntoArray, bitset::Set,
+    sudoku::{pos::UnitClass, Digit, Unit},
+    util::TryIntoArray,
 };
 
 use super::{Strategy, StrategyResult};
@@ -15,10 +13,7 @@ pub const FULL_HOUSE: Strategy = Strategy {
         let mut solutions = Vec::new();
 
         for unit in Unit::list() {
-            let unsolved_cells: Set<Cell> = unit
-                .cells_iter()
-                .filter(|&cell| board.get_digit(&cell).is_none())
-                .collect();
+            let unsolved_cells = unit.cells_set() & board.cells_unsolved();
 
             let Ok(cell) = unsolved_cells.try_singleton() else {
                 continue;
@@ -48,12 +43,10 @@ pub const NAKED_SINGLE: Strategy = Strategy {
     find: |board| {
         let mut result = StrategyResult::default();
 
-        for cell in board.iter_unsolved_cells() {
+        for cell in board.iter_unsolved() {
             let notes = board.get_notes(&cell).unwrap();
 
-            let Ok(digit) = notes.try_singleton() else {
-                continue;
-            };
+            let Ok(digit) = notes.try_singleton() else { continue };
 
             result.solutions.push((cell, digit).into());
         }
@@ -67,18 +60,13 @@ pub const HIDDEN_SINGLE: Strategy = Strategy {
     find: |board| {
         let mut result = StrategyResult::default();
 
-        for digit in Digit::list() {
+        for x in Digit::list() {
             for unit in Unit::list() {
-                let candidate_cells = unit
-                    .cells_iter()
-                    .filter(|cell| board.has_note(cell, digit))
-                    .collect_vec();
+                let x_cells = unit.cells_set() & board.cells_with_note(x);
 
-                let Ok(cell) = candidate_cells.try_singleton() else {
-                    continue;
-                };
+                let Ok(cell) = x_cells.try_singleton() else { continue };
 
-                result.solutions.push((cell, digit).into());
+                result.solutions.push((cell, x).into());
             }
         }
 
