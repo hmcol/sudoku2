@@ -2,7 +2,7 @@ use itertools::Itertools;
 
 use crate::{
     bitset::Set,
-    sudoku::{Board, Candidate, Digit, Unit},
+    sudoku::{pos::UnitClass, Board, Candidate, Cell, Digit, Unit},
 };
 
 use super::{Strategy, StrategyResult};
@@ -28,32 +28,33 @@ pub const HIDDEN_QUAD: Strategy = Strategy {
 
 fn find_hidden_subset<const N: usize>(board: &Board) -> StrategyResult {
     for unit in Unit::list() {
-        let unsolved_digits_in_unit = unit
+        let unsolved_digits = unit
             .cells_iter()
             .filter_map(|cell| board.get_notes(&cell))
-            .fold(Set::new(), |acc, &notes| acc | notes);
+            .sum::<Set<Digit>>();
 
-        for digit_vec in unsolved_digits_in_unit.iter().combinations(N) {
-            let digit_set: Set<Digit> = digit_vec.into_iter().collect();
-
-            let cell_set = unit
-                .cells_iter()
-                .filter_map(|cell| board.get_notes(&cell).map(|notes| (cell, notes)))
-                .filter(|(_, notes)| !(**notes & digit_set).is_empty())
-                .collect_vec();
+        for digit_vec in unsolved_digits.iter().combinations(N) {
+            let cell_set = digit_vec
+                .iter()
+                .map(|&digit| unit.cells_set() & board.cells_with_note(digit))
+                .sum::<Set<Cell>>();
 
             if cell_set.len() != N {
                 continue;
             }
 
+            let digit_set: Set<Digit> = digit_vec.into_iter().collect();
+
             let mut eliminations = Vec::new();
 
-            for (cell, &notes) in cell_set {
-                let elims = (notes - digit_set)
-                    .iter()
-                    .map(|digit| Candidate::from_cell_and_digit(cell, digit));
+            for cell in cell_set {
+                let notes = board.get_notes(&cell).unwrap();
 
-                eliminations.extend(elims);
+                eliminations.extend(
+                    (*notes - digit_set)
+                        .iter()
+                        .map(|digit| Candidate::from_cell_and_digit(cell, digit)),
+                );
             }
 
             if eliminations.is_empty() {
@@ -62,7 +63,7 @@ fn find_hidden_subset<const N: usize>(board: &Board) -> StrategyResult {
 
             return StrategyResult {
                 eliminations,
-                ..StrategyResult::default()
+                ..Default::default()
             };
         }
     }

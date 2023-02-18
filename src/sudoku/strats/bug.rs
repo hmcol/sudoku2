@@ -1,6 +1,6 @@
 use crate::{
     bitset::Set,
-    sudoku::{Candidate, Cell},
+    sudoku::{pos::UnitClass, Cell},
     util::TryIntoArray,
 };
 
@@ -13,10 +13,10 @@ pub const BUG_PLUS_1: Strategy = Strategy {
     find: |board| {
         let non_bivalue_cells: Set<Cell> = board
             .iter_unsolved()
-            .filter(|&cell| board.get_notes(&cell).unwrap().len() != 2)
+            .filter(|cell| board.count_notes(cell) != 2)
             .collect();
 
-        let Ok([bug_cell]) = non_bivalue_cells.try_into_array() else {
+        let Ok(bug_cell) = non_bivalue_cells.try_singleton() else {
             return StrategyResult::default();
         };
 
@@ -27,12 +27,10 @@ pub const BUG_PLUS_1: Strategy = Strategy {
         }
 
         let bug_digit = bug_notes.iter().find(|&digit| {
-            bug_cell.units().iter().all(|unit| {
-                unit.cells_iter()
-                    .filter(|cell| board.has_note(cell, digit))
-                    .count()
-                    == 3
-            })
+            bug_cell
+                .units()
+                .iter()
+                .all(|unit| (unit.cells_set() & board.cells_with_note(digit)).len() == 3)
         });
 
         let Some(bug_digit) = bug_digit else {
@@ -40,8 +38,8 @@ pub const BUG_PLUS_1: Strategy = Strategy {
         };
 
         StrategyResult {
-            solutions: vec![Candidate::from_cell_and_digit(bug_cell, bug_digit)],
-            ..StrategyResult::default()
+            solutions: vec![(bug_cell, bug_digit).into()],
+            ..Default::default()
         }
     },
 };

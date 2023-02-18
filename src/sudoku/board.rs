@@ -124,6 +124,13 @@ impl Board {
         }
     }
 
+    pub fn count_notes(&self, cell: &Cell) -> usize {
+        match self.get_notes(cell) {
+            Some(notes) => notes.len(),
+            None => 0,
+        }
+    }
+
     // mutators ----------------------------------------------------------------
 
     pub fn reset(&mut self) {
