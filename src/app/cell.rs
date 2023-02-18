@@ -2,10 +2,10 @@ use yew::prelude::*;
 
 use crate::{
     bitset::Set,
-    sudoku::{Candidate, Cell, CellData, Digit},
+    sudoku::{Candidate, Cell, CellData, Digit, SolverAction},
 };
 
-use super::{ClickCallbacks, SolverHandle};
+use super::SolverHandle;
 
 // =============================================================================
 
@@ -19,7 +19,6 @@ pub fn CellComponent(props: &CellProps) -> Html {
     // get contexts ------------------------------------------------------------
 
     let solver = use_context::<SolverHandle>().expect("Solver context not found");
-    let callbacks = use_context::<ClickCallbacks>().expect("ClickCallbacks context not found");
 
     // read props --------------------------------------------------------------
 
@@ -34,9 +33,13 @@ pub fn CellComponent(props: &CellProps) -> Html {
         }
     } else {
         false
-    }.then_some("lowlight");
+    }
+    .then_some("lowlight");
 
-    let on_click = Callback::<MouseEvent>::from(move |_| callbacks.on_click_cell.emit(cell));
+    let on_click = Callback::<MouseEvent>::from(move |_| 
+        // log::info!("click cell {:?}", cell)
+        ()
+    );
 
     let content = match solver.board.get_data(&cell).clone() {
         CellData::Digit(digit) => {
@@ -77,7 +80,6 @@ fn CellDigit(props: &CellDigitProps) -> Html {
     // get contexts ------------------------------------------------------------
 
     let solver = use_context::<SolverHandle>().expect("Solver context not found");
-    let callbacks = use_context::<ClickCallbacks>().expect("ClickCallbacks context not found");
 
     // read props --------------------------------------------------------------
 
@@ -88,7 +90,10 @@ fn CellDigit(props: &CellDigitProps) -> Html {
     let given = props.is_given.then_some("given");
     let focus = (solver.focus_digit == Some(digit)).then_some("focus");
 
-    let on_click = Callback::<MouseEvent>::from(move |_| callbacks.on_click_digit.emit(digit));
+    let on_click: Callback<MouseEvent> = {
+        let solver = solver;
+        Callback::from(move |_| solver.dispatch(SolverAction::SetFocus(Some(digit))))
+    };
 
     // render ------------------------------------------------------------------
 

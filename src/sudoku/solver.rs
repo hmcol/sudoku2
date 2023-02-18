@@ -1,5 +1,3 @@
-use log::{error, info, debug};
-
 use super::{Board, Digit, Strategy, StrategyResult, STRATEGY_LIST};
 
 // =============================================================================
@@ -79,7 +77,7 @@ impl Solver {
     }
 
     fn set_focus(&mut self, digit: Option<Digit>) {
-        self.focus_digit = digit;
+        self.focus_digit = (digit != self.focus_digit).then_some(digit).flatten();
     }
 
     // mutating action helpers -------------------------------------------------
@@ -95,7 +93,7 @@ impl Solver {
             let result = (strategy.find)(&self.board);
 
             if result.is_nontrivial() {
-                info!("Found strategy: {}", strategy.name);
+                log::info!("Found strategy: {}", strategy.name);
                 // debug!("Result: {:#?}", result);
 
                 self.result = Some(result);
@@ -103,7 +101,7 @@ impl Solver {
             }
         }
 
-        info!("no strategy found");
+        log::info!("no strategy found");
     }
 
     fn apply_current_result(&mut self) {
@@ -111,7 +109,7 @@ impl Solver {
         // This is necessary because we need to borrow self.result mutably in
         // order to call self.remember_board().
         let Some(result) = self.result.take() else {
-            error!("Solver::apply_current_result() called with no result");
+            log::error!("Solver::apply_current_result() called with no result");
             return;
         };
 
