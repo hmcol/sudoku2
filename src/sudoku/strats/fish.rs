@@ -18,7 +18,6 @@ pub const SWORDFISH: Strategy = Strategy {
     name: "Swordfish",
     find: find_basic_fish::<3>,
 };
-
 pub const JELLYFISH: Strategy = Strategy {
     name: "Jellyfish",
     find: find_basic_fish::<4>,
@@ -65,7 +64,7 @@ fn find_fish<const N: usize, Base: UnitClass, Cover: UnitClass>(board: &Board) -
 
             return StrategyResult {
                 eliminations,
-                ..StrategyResult::default()
+                ..Default::default()
             };
         }
     }

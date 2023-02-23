@@ -18,7 +18,12 @@ pub fn SolverControls() -> Html {
 
     let on_reset: Callback<MouseEvent> = {
         let solver = solver.clone();
-        Callback::from(move |_| solver.dispatch(SolverAction::Reset))
+        Callback::from(move |_| {
+            solver.dispatch(SolverAction::LoadBoardString(
+                "607005010580007900000060000005000009000936000300000400000080000003600094050200806"
+                    .to_string(),
+            ))
+        })
     };
 
     let on_undo: Callback<MouseEvent> = {

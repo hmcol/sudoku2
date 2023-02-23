@@ -8,7 +8,7 @@ mod grid;
 use grid::Grid;
 
 mod solver_controls;
-use solver_controls::{Solver, SolverControls};
+use solver_controls::{Solver, SolverAction, SolverControls};
 
 // =============================================================================
 
@@ -18,13 +18,13 @@ pub type SolverHandle = UseReducerHandle<Solver>;
 pub fn App() -> Html {
     // state -------------------------------------------------------------------
 
-    let solver_handle = use_reducer(Solver::new);
+    let solver = use_reducer(Solver::new);
 
     // render ------------------------------------------------------------------
 
     html! {
         <div class={classes!("app")}>
-            <ContextProvider<SolverHandle> context={solver_handle.clone()}>
+            <ContextProvider<SolverHandle> context={solver.clone()}>
                 <Grid />
                 <div class={classes!("game-info")}>
                     <SolverControls />

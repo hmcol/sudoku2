@@ -1,9 +1,12 @@
-use super::{Board, Digit, Strategy, StrategyResult, STRATEGY_LIST};
+use crate::bitset::{Set, Element};
+
+use super::{Board, Digit, Strategy, StrategyResult, STRATEGY_LIST, Cell};
 
 // =============================================================================
 
 pub enum Action {
     Reset,
+    LoadBoardString(String),
     Undo,
     Step,
     SetFocus(Option<Digit>),
@@ -17,6 +20,7 @@ pub struct Solver {
     strategies: Vec<Strategy>,
     history: Vec<Board>,
     // public
+    pub given: Set<Cell>,
     pub board: Board,
     pub result: Option<StrategyResult>,
     pub focus_digit: Option<Digit>,
@@ -27,11 +31,10 @@ impl Solver {
 
     pub fn new() -> Self {
         Solver {
-            history: Vec::new(),
-            board: Board::from_string(
-                "607005010580007900000060000005000009000936000300000400000080000003600094050200806",
-            ),
             strategies: STRATEGY_LIST.to_vec(),
+            history: Vec::new(),
+            given: Set::new(),
+            board: Board::new(),
             result: None,
             focus_digit: None,
         }
@@ -42,6 +45,7 @@ impl Solver {
     pub fn take_action(mut self, action: Action) -> Self {
         match action {
             Action::Reset => self.reset(),
+            Action::LoadBoardString(string) => self.load_board_string(&string),
             Action::Undo => self.undo(),
             Action::Step => self.step(),
             Action::SetFocus(digit) => self.set_focus(digit),
@@ -52,9 +56,23 @@ impl Solver {
 
     fn reset(&mut self) {
         self.history.clear();
-        self.board.reset();
+        self.board.clear();
         self.result = None;
         self.focus_digit = None;
+    }
+
+    fn load_board_string(&mut self, string: &str) {
+        self.reset();
+
+        for cell in Cell::list() {
+            let i = cell.index();
+            let digit = string.get(i..(i + 1)).and_then(|s| s.parse().ok());
+
+            if let Some(digit) = digit {
+                self.given.insert(cell);
+                self.board.set_digit(cell, digit);
+            }
+        }        
     }
 
     fn undo(&mut self) {

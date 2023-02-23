@@ -41,17 +41,17 @@ pub fn CellComponent(props: &CellProps) -> Html {
         ()
     );
 
-    let content = match solver.board.get_data(&cell).clone() {
+    let content = match solver.board.get_data(&cell) {
         CellData::Digit(digit) => {
-            let is_given = solver.board.is_given(&cell);
+            let is_given = solver.given.contains(cell);
 
             html! {
-                <CellDigit {digit} {is_given} />
+                <CellDigit digit={*digit} {is_given} />
             }
         }
         CellData::Notes(notes) => {
             html! {
-                <CellNotes {notes} />
+                <CellNotes notes={*notes} />
             }
         }
     };

@@ -6,7 +6,7 @@ use super::{Candidate, Cell, Digit};
 
 // =============================================================================
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum CellData {
     Digit(Digit),
     Notes(Set<Digit>),
@@ -21,63 +21,25 @@ impl Default for CellData {
 // =============================================================================
 
 #[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Board {
-    cell_data: [CellData; 81],
-    givens: Set<Cell>,
-}
+pub struct Board([CellData; 81]);
 
 impl Board {
     // constructors ------------------------------------------------------------
 
     pub fn new() -> Board {
-        let mut cell_data_vec = Vec::with_capacity(81);
-
-        for _ in Cell::list() {
-            cell_data_vec.push(CellData::default());
-        }
-
-        let cell_data = cell_data_vec.try_into().unwrap_or_else(|_| {
-            panic!("Could not convert `Vec` to `[CellData; 81]` while creating new board.")
-        });
-
-        Board {
-            cell_data,
-            givens: Set::new(),
-        }
-    }
-
-    pub fn from_string(string: &str) -> Board {
-        let mut board = Board::new();
-
-        for cell in Cell::list() {
-            let i = cell.index();
-            let digit = string.get(i..(i + 1)).and_then(|s| s.parse().ok());
-
-            if digit.is_some() {
-                board.givens.insert(cell);
-            }
-
-            let data2 = match digit {
-                Some(digit) => CellData::Digit(digit),
-                None => CellData::default(),
-            };
-
-            board.cell_data[i] = data2;
-        }
-
-        board
+        Board([CellData::default(); 81])
     }
 
     // cell getters ------------------------------------------------------------
 
     pub fn get_data(&self, cell: &Cell) -> &CellData {
-        self.cell_data
+        self.0
             .get(cell.index())
             .unwrap_or_else(|| panic!("Cell {cell} not found in board"))
     }
 
     fn get_data_mut(&mut self, cell: &Cell) -> &mut CellData {
-        self.cell_data
+        self.0
             .get_mut(cell.index())
             .unwrap_or_else(|| panic!("Cell {cell} not found in board"))
     }
@@ -109,10 +71,6 @@ impl Board {
         matches!(self.get_data(cell), CellData::Digit(_))
     }
 
-    pub fn is_given(&self, cell: &Cell) -> bool {
-        self.givens.contains(*cell)
-    }
-
     pub fn is_notes(&self, cell: &Cell) -> bool {
         matches!(self.get_data(cell), CellData::Notes(_))
     }
@@ -133,20 +91,19 @@ impl Board {
 
     // mutators ----------------------------------------------------------------
 
-    pub fn reset(&mut self) {
+    pub fn clear(&mut self) {
         for ref cell in Cell::list() {
-            if self.givens.contains(*cell) {
-                continue;
-            }
-
             *self.get_data_mut(cell) = CellData::default();
         }
     }
 
+    pub fn set_digit(&mut self, cell: Cell, digit: Digit) {
+        *self.get_data_mut(&cell) = CellData::Digit(digit);
+    }
+
     pub fn input_solution(&mut self, candidate: Candidate) {
         let (cell, digit) = candidate.as_tuple();
-
-        *self.get_data_mut(&cell) = CellData::Digit(digit);
+        self.set_digit(cell, digit);
     }
 
     pub fn input_elimination(&mut self, candidate: Candidate) {
