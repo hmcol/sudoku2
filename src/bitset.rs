@@ -1,7 +1,8 @@
 use std::{
     cmp::Ordering,
+    iter::Sum,
     marker::PhantomData,
-    ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, Not, Sub}, iter::Sum,
+    ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, Not, Sub},
 };
 
 // =============================================================================
@@ -487,7 +488,6 @@ impl<'a, E: Element, B: BitsRepr> Sum<&'a Self> for BitSet<E, B> {
     }
 }
 
-
 // =============================================================================
 
 impl<E: Element, B: BitsRepr> PartialOrd for BitSet<E, B> {
@@ -523,12 +523,7 @@ mod fmt {
                 lz -= 1;
             }
 
-            write!(
-                f,
-                "{}{:b}",
-                "0".repeat(lz),
-                self.bits
-            )
+            write!(f, "{}{:b}", "0".repeat(lz), self.bits)
         }
     }
 }

@@ -2,7 +2,7 @@ use std::{fmt, str::FromStr};
 
 use crate::bitset::{impl_element_for_int_newtype, Element, Set};
 
-use super::{macros::impl_bounded_int_newtype, Block, Col, Row, UnitClass, Unit};
+use super::{macros::impl_bounded_int_newtype, Block, Col, Row, Unit, UnitClass};
 
 // =============================================================================
 
@@ -31,11 +31,7 @@ impl Cell {
     }
 
     pub fn units(self) -> [Unit; 3] {
-        [
-            self.row().into(),
-            self.col().into(),
-            self.block().into(),
-        ]
+        [self.row().into(), self.col().into(), self.block().into()]
     }
 
     pub fn neighbors(self) -> Set<Self> {

@@ -8,7 +8,7 @@ mod grid;
 use grid::Grid;
 
 mod solver_controls;
-use solver_controls::{Solver, SolverAction, SolverControls};
+use solver_controls::{Solver, SolverControls};
 
 // =============================================================================
 

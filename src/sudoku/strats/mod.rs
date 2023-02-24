@@ -23,7 +23,6 @@ use fish::{JELLYFISH, SWORDFISH, X_WING};
 mod bug;
 use bug::BUG_PLUS_1;
 
-
 // -----------------------------------------------------------------------------
 
 /// list of all strategies in default order

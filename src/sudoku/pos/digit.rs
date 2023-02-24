@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use crate::bitset::{Element, impl_element_for_int_newtype};
+use crate::bitset::{impl_element_for_int_newtype, Element};
 
 // =============================================================================
 

@@ -5,7 +5,7 @@ macro_rules! impl_bounded_int_newtype {
             pub const fn new_unchecked(value: $Repr) -> Self {
                 Self(value)
             }
-            
+
             pub fn new(value: $Repr) -> Option<Self> {
                 if value < $MAX {
                     Some(Self(value))

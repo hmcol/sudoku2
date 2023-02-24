@@ -1,6 +1,8 @@
-use crate::bitset::{Set, Element};
+use log::info;
 
-use super::{Board, Digit, Strategy, StrategyResult, STRATEGY_LIST, Cell};
+use crate::bitset::{Element, Set};
+
+use super::{Board, Cell, Digit, Strategy, StrategyResult, STRATEGY_LIST};
 
 // =============================================================================
 
@@ -72,7 +74,7 @@ impl Solver {
                 self.given.insert(cell);
                 self.board.set_digit(cell, digit);
             }
-        }        
+        }
     }
 
     fn undo(&mut self) {
@@ -106,20 +108,17 @@ impl Solver {
 
     fn find_next_strategy(&mut self) {
         for strategy in &self.strategies {
-            // debug!("Trying strategy: {}", strategy.name);
-
             let result = (strategy.find)(&self.board);
 
             if result.is_nontrivial() {
-                log::info!("Found strategy: {}", strategy.name);
-                // debug!("Result: {:#?}", result);
+                info!("Found strategy: {}", strategy.name);
 
                 self.result = Some(result);
                 return;
             }
         }
 
-        log::info!("no strategy found");
+        info!("no strategy found");
     }
 
     fn apply_current_result(&mut self) {

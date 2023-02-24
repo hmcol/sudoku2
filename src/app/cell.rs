@@ -36,10 +36,7 @@ pub fn CellComponent(props: &CellProps) -> Html {
     }
     .then_some("lowlight");
 
-    let on_click = Callback::<MouseEvent>::from(move |_| 
-        // log::info!("click cell {:?}", cell)
-        ()
-    );
+    let on_click = Callback::<MouseEvent>::from(|_| ());
 
     let content = match solver.board.get_data(&cell) {
         CellData::Digit(digit) => {

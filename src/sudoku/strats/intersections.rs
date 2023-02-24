@@ -1,9 +1,6 @@
 use itertools::Itertools;
 
-use crate::{
-    bitset::Set,
-    sudoku::{pos::UnitClass, Block, Board, Candidate, Digit, Line, Cell},
-};
+use crate::sudoku::{pos::UnitClass, Block, Board, Candidate, Digit, Line};
 
 use super::{Strategy, StrategyResult};
 
@@ -23,31 +20,23 @@ pub const INTERSECTION_CLAIMING: Strategy = Strategy {
 
 fn find_intersection<Base: UnitClass, Cover: UnitClass>(board: &Board) -> StrategyResult {
     for x in Digit::list() {
-        for base_unit in Base::all_vec() {
-            let x_base_cells: Set<Cell> = base_unit
-                .array()
-                .iter()
-                .filter(|cell| board.has_note(cell, x))
-                .copied()
-                .collect();
+        let x_cells = board.cells_with_note(x);
 
-            if x_base_cells.len() < 2 {
+        for base in Base::iter_all() {
+            let base_cells = base.cells_set() & x_cells;
+
+            if base_cells.len() < 2 {
                 continue;
             }
 
-            let Some(cover_unit) = Cover::all_vec().into_iter()
-                .find(|cover| cover.cells_set().is_superset(&x_base_cells))
-            else {
-                continue;
-            };
+            let cover_cells = Cover::iter_all()
+                .map(UnitClass::cells_set)
+                .find(|cover_cells| &base_cells <= cover_cells);
 
-            let eliminations = cover_unit
-                .array()
+            let Some(cover_cells) = cover_cells else { continue };
+
+            let eliminations = ((cover_cells & x_cells) - base_cells)
                 .iter()
-                .into_iter()
-                .copied()
-                .filter(|cell| board.has_note(cell, x))
-                .filter(|cell| !x_base_cells.contains(*cell))
                 .map(|cell| Candidate::from_cell_and_digit(cell, x))
                 .collect_vec();
 

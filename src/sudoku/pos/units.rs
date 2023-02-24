@@ -251,7 +251,6 @@ pub trait UnitClass: Copy + Debug + 'static {
 
 impl UnitClass for Row {
     const NAME: &'static str = "row";
-    
 
     fn all_slice() -> &'static [Self] {
         ROW_INDICES
@@ -264,12 +263,10 @@ impl UnitClass for Row {
     fn all_vec() -> Vec<Self> {
         Row::list().collect_vec()
     }
-
 }
 
 impl UnitClass for Col {
     const NAME: &'static str = "col";
-
 
     fn all_slice() -> &'static [Self] {
         COL_INDICES
@@ -286,7 +283,6 @@ impl UnitClass for Col {
 
 impl UnitClass for Line {
     const NAME: &'static str = "line";
-
 
     fn all_slice() -> &'static [Self] {
         LINE_INDICES
