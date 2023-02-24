@@ -2,7 +2,7 @@ use itertools::Itertools;
 
 use crate::{
     bitset::Set,
-    sudoku::{pos::UnitClass, Board, Candidate, Cell, Digit, Unit},
+    sudoku::{pos::UnitClass, Board, Cell, Digit, Unit},
 };
 
 use super::{Strategy, StrategyResult};
@@ -28,16 +28,16 @@ pub const HIDDEN_QUAD: Strategy = Strategy {
 
 fn find_hidden_subset<const N: usize>(board: &Board) -> StrategyResult {
     for unit in Unit::list() {
-        let unsolved_digits = unit
+        let unsolved_digits: Set<Digit> = unit
             .cells_iter()
             .filter_map(|cell| board.get_notes(&cell))
-            .sum::<Set<Digit>>();
+            .sum();
 
         for digit_vec in unsolved_digits.iter().combinations(N) {
-            let cell_set = digit_vec
+            let cell_set: Set<Cell> = digit_vec
                 .iter()
                 .map(|&digit| unit.cells_set() & board.cells_with_note(digit))
-                .sum::<Set<Cell>>();
+                .sum();
 
             if cell_set.len() != N {
                 continue;
@@ -50,12 +50,7 @@ fn find_hidden_subset<const N: usize>(board: &Board) -> StrategyResult {
             for cell in cell_set {
                 let notes = board.get_notes(&cell).unwrap();
 
-                let elims = (*notes - digit_set)
-                    .iter()
-                    .map(|digit| Candidate::from_cell_and_digit(cell, digit))
-                    .collect();
-
-                eliminations |= elims;
+                eliminations |= (*notes - digit_set).map(|digit| (cell, digit).into());
             }
 
             if eliminations.is_empty() {

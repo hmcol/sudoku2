@@ -7,16 +7,18 @@ use super::{Strategy, StrategyResult};
 pub const REVISE_NOTES: Strategy = Strategy {
     name: "Revise Notes",
     find: |board| {
-        let mut elims = Set::<Candidate>::new();
+        let eliminations: Set<Candidate> = board
+            .iter_solved()
+            .map(|solved_cell| {
+                let digit = board.get_digit(&solved_cell).unwrap();
 
-        for cell in board.iter_solved() {
-            let x = board.get_digit(&cell).unwrap();
-
-            elims |= (cell.neighbors() & board.cells_with_note(x)).map(|cell| (cell, x).into());
-        }
+                (solved_cell.neighbors() & board.cells_with_note(digit))
+                    .map(|cell| (cell, digit).into())
+            })
+            .sum();
 
         StrategyResult {
-            eliminations: elims.into_iter().collect(),
+            eliminations,
             ..Default::default()
         }
     },

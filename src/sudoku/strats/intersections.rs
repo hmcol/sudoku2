@@ -1,7 +1,4 @@
-use crate::{
-    bitset::Set,
-    sudoku::{pos::UnitClass, Block, Board, Candidate, Digit, Line},
-};
+use crate::sudoku::{pos::UnitClass, Block, Board, Digit, Line};
 
 use super::{Strategy, StrategyResult};
 
@@ -36,10 +33,7 @@ fn find_intersection<Base: UnitClass, Cover: UnitClass>(board: &Board) -> Strate
 
             let Some(cover_cells) = cover_cells else { continue };
 
-            let eliminations = ((cover_cells & x_cells) - base_cells)
-                .iter()
-                .map(|cell| Candidate::from_cell_and_digit(cell, x))
-                .collect::<Set<Candidate>>();
+            let eliminations = ((cover_cells & x_cells) - base_cells).map(|cell| (cell, x).into());
 
             if eliminations.is_empty() {
                 continue;

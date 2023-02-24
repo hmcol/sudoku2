@@ -307,14 +307,10 @@ impl<E: Element, B: BitsRepr> BitSet<E, B> {
         Iter::with_bits(self.bits)
     }
 
+    /// not sure if this is a good idea, since it could allow bad iterator stuff
+    /// but it's useful for shortening strategy implementations
     pub fn map<E2: Element, F: Fn(E) -> E2>(&self, f: F) -> BitSet<E2, <E2 as Element>::Repr> {
-        let mut bits = <E2 as Element>::Repr::ZERO;
-
-        for e in self.iter() {
-            bits |= <E2 as Element>::Repr::single(f(e).index());
-        }
-
-        BitSet::with_bits(bits)
+        self.iter().map(f).collect()
     }
 
     /// returns the number of elements in the set.

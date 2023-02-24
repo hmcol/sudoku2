@@ -42,18 +42,14 @@ fn find_naked_subset<const N: usize>(board: &Board) -> StrategyResult {
 
             let cell_set: Set<Cell> = cell_vec.into_iter().collect();
 
-            let mut eliminations = Set::new();
+            let eliminations: Set<Candidate> = (unsolved_cells - cell_set)
+                .iter()
+                .map(|cell| {
+                    let notes = board.get_notes(&cell).unwrap();
 
-            for cell in unsolved_cells - cell_set {
-                let notes = board.get_notes(&cell).unwrap();
-
-                let elims = (*notes & digit_set)
-                    .iter()
-                    .map(|digit| Candidate::from_cell_and_digit(cell, digit))
-                    .collect();
-
-                eliminations |= elims;
-            }
+                    (*notes & digit_set).map(|digit| (cell, digit).into())
+                })
+                .sum();
 
             if eliminations.is_empty() {
                 continue;

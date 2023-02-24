@@ -60,7 +60,7 @@ fn find_fish<const N: usize, Base: UnitClass, Cover: UnitClass>(board: &Board) -
                 continue;
             }
 
-            let eliminations = elim_set.iter().map(|cell| (cell, x).into()).collect();
+            let eliminations = elim_set.map(|cell| (cell, x).into());
 
             return StrategyResult {
                 eliminations,

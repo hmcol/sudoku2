@@ -65,10 +65,12 @@ pub const HIDDEN_SINGLE: Strategy = Strategy {
         let mut solutions = Set::new();
 
         for x in Digit::list() {
-            for unit in Unit::list() {
-                let x_cells = unit.cells_set() & board.cells_with_note(x);
+            let x_cells = board.cells_with_note(x);
 
-                let Ok(cell) = x_cells.try_singleton() else { continue };
+            for unit in Unit::list() {
+                let x_unit_cells = unit.cells_set() & x_cells;
+
+                let Ok(cell) = x_unit_cells.try_singleton() else { continue };
 
                 solutions.insert((cell, x).into());
             }
