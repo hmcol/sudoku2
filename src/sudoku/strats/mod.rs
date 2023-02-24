@@ -1,4 +1,7 @@
-use crate::sudoku::{Board, Candidate};
+use crate::{
+    bitset::Set,
+    sudoku::{Board, Candidate},
+};
 
 // import strategies ===========================================================
 
@@ -89,12 +92,23 @@ impl std::fmt::Debug for Strategy {
 
 // result ----------------------------------------------------------------------
 
-#[derive(Clone, Eq, PartialEq, Debug, Default)]
+#[derive(Clone, Eq, PartialEq, Debug)]
 pub struct StrategyResult {
-    pub solutions: Vec<Candidate>,
-    pub eliminations: Vec<Candidate>,
-    pub highlights: Vec<Candidate>,
-    pub highlights2: Vec<Candidate>,
+    pub solutions: Set<Candidate>,
+    pub eliminations: Set<Candidate>,
+    pub highlights: Set<Candidate>,
+    pub highlights2: Set<Candidate>,
+}
+
+impl Default for StrategyResult {
+    fn default() -> Self {
+        Self {
+            solutions: Set::new(),
+            eliminations: Set::new(),
+            highlights: Set::new(),
+            highlights2: Set::new(),
+        }
+    }
 }
 
 impl StrategyResult {

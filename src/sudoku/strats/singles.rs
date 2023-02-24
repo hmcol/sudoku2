@@ -1,4 +1,5 @@
 use crate::{
+    bitset::Set,
     sudoku::{pos::UnitClass, Digit, Unit},
     util::TryIntoArray,
 };
@@ -10,7 +11,7 @@ use super::{Strategy, StrategyResult};
 pub const FULL_HOUSE: Strategy = Strategy {
     name: "Full House",
     find: |board| {
-        let mut solutions = Vec::new();
+        let mut solutions = Set::new();
 
         for unit in Unit::list() {
             let unsolved_cells = unit.cells_set() & board.cells_unsolved();
@@ -28,7 +29,7 @@ pub const FULL_HOUSE: Strategy = Strategy {
                 continue;
             };
 
-            solutions.push((cell, digit).into());
+            solutions.insert((cell, digit).into());
         }
 
         StrategyResult {
@@ -41,24 +42,27 @@ pub const FULL_HOUSE: Strategy = Strategy {
 pub const NAKED_SINGLE: Strategy = Strategy {
     name: "Naked Single",
     find: |board| {
-        let mut result = StrategyResult::default();
+        let mut solutions = Set::new();
 
         for cell in board.iter_unsolved() {
             let notes = board.get_notes(&cell).unwrap();
 
             let Ok(digit) = notes.try_singleton() else { continue };
 
-            result.solutions.push((cell, digit).into());
+            solutions.insert((cell, digit).into());
         }
 
-        result
+        StrategyResult {
+            solutions,
+            ..Default::default()
+        }
     },
 };
 
 pub const HIDDEN_SINGLE: Strategy = Strategy {
     name: "Hidden Single",
     find: |board| {
-        let mut result = StrategyResult::default();
+        let mut solutions = Set::new();
 
         for x in Digit::list() {
             for unit in Unit::list() {
@@ -66,10 +70,13 @@ pub const HIDDEN_SINGLE: Strategy = Strategy {
 
                 let Ok(cell) = x_cells.try_singleton() else { continue };
 
-                result.solutions.push((cell, x).into());
+                solutions.insert((cell, x).into());
             }
         }
 
-        result
+        StrategyResult {
+            solutions,
+            ..Default::default()
+        }
     },
 };

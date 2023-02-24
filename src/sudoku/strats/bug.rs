@@ -38,7 +38,7 @@ pub const BUG_PLUS_1: Strategy = Strategy {
         };
 
         StrategyResult {
-            solutions: vec![(bug_cell, bug_digit).into()],
+            solutions: Set::singleton((bug_cell, bug_digit).into()),
             ..Default::default()
         }
     },

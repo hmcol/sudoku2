@@ -151,10 +151,10 @@ fn Note(props: &NoteProps) -> Html {
     let c = Candidate::from_cell_and_digit(cell, props.digit);
 
     let color = solver.result.as_ref().and_then(|result| {
-        let solution = result.solutions.contains(&c).then_some("green");
-        let elimination = result.eliminations.contains(&c).then_some("red");
-        let highlight = result.highlights.contains(&c).then_some("blue");
-        let highlight2 = result.highlights2.contains(&c).then_some("yellow");
+        let solution = result.solutions.contains(c).then_some("green");
+        let elimination = result.eliminations.contains(c).then_some("red");
+        let highlight = result.highlights.contains(c).then_some("blue");
+        let highlight2 = result.highlights2.contains(c).then_some("yellow");
 
         solution.or(elimination).or(highlight).or(highlight2)
     });
