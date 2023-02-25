@@ -1,4 +1,4 @@
-use log::info;
+use log::{debug, info};
 
 use crate::bitset::{Element, Set};
 
@@ -108,6 +108,8 @@ impl Solver {
 
     fn find_next_strategy(&mut self) {
         for strategy in &self.strategies {
+            // debug!("trying strategy: {}", strategy.name);
+
             let result = (strategy.find)(&self.board);
 
             if result.is_nontrivial() {

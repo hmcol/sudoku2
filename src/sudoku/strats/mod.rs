@@ -3,6 +3,10 @@ use crate::{
     sudoku::{Board, Candidate},
 };
 
+// helpers =====================================================================
+
+mod link;
+
 // import strategies ===========================================================
 
 mod revise_notes;
@@ -26,6 +30,9 @@ use fish::{JELLYFISH, SWORDFISH, X_WING};
 mod bug;
 use bug::BUG_PLUS_1;
 
+mod chains;
+use chains::X_CHAIN_SIMPLE;
+
 // -----------------------------------------------------------------------------
 
 /// list of all strategies in default order
@@ -46,6 +53,7 @@ pub const STRATEGY_LIST: &[Strategy] = &[
     SWORDFISH,
     JELLYFISH,
     BUG_PLUS_1,
+    X_CHAIN_SIMPLE,
 ];
 
 /// checklist:

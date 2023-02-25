@@ -49,7 +49,7 @@ impl Cell {
             neighbors.insert(*cell);
         }
 
-        neighbors
+        neighbors - Set::singleton(self)
     }
 
     pub fn iter_neighbors(self) -> impl Iterator<Item = Self> {
