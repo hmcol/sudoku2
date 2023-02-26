@@ -33,6 +33,8 @@ use bug::BUG_PLUS_1;
 mod chains;
 use chains::X_CHAIN_SIMPLE;
 
+use self::chains::{AIC, XY_CHAIN, X_CHAIN};
+
 // -----------------------------------------------------------------------------
 
 /// list of all strategies in default order
@@ -54,6 +56,9 @@ pub const STRATEGY_LIST: &[Strategy] = &[
     JELLYFISH,
     BUG_PLUS_1,
     X_CHAIN_SIMPLE,
+    X_CHAIN,
+    XY_CHAIN,
+    AIC,
 ];
 
 /// checklist:

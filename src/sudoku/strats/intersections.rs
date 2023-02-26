@@ -39,8 +39,11 @@ fn find_intersection<Base: UnitClass, Cover: UnitClass>(board: &Board) -> Strate
                 continue;
             }
 
+            let highlights = base_cells.map(|cell| (cell, x).into());
+
             return StrategyResult {
                 eliminations,
+                highlights,
                 ..StrategyResult::default()
             };
         }

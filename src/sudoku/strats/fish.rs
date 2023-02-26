@@ -62,8 +62,11 @@ fn find_fish<const N: usize, Base: UnitClass, Cover: UnitClass>(board: &Board) -
 
             let eliminations = elim_set.map(|cell| (cell, x).into());
 
+            let highlights = base_cells.map(|cell| (cell, x).into());
+
             return StrategyResult {
                 eliminations,
+                highlights,
                 ..Default::default()
             };
         }

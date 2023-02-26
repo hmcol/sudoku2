@@ -378,6 +378,7 @@ impl<E: Element, B: BitsRepr> IntoIterator for BitSet<E, B> {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct Iter<E: Element, B: BitsRepr> {
     bits: B,
     _phantom: PhantomData<E>,

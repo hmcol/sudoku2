@@ -8,7 +8,7 @@ use crate::{
 };
 
 use super::{
-    link::{Bilocal, LinkClass, LinkGraph},
+    link::{Bilocal, Bivalue, LinkClass, LinkGraph, Strong, Weak, WeakUnit},
     Strategy, StrategyResult,
 };
 
@@ -17,6 +17,21 @@ use super::{
 pub const X_CHAIN_SIMPLE: Strategy = Strategy {
     name: "X-Chain Simple",
     find: find_chain::<Bilocal, Bilocal>,
+};
+
+pub const X_CHAIN: Strategy = Strategy {
+    name: "X-Chain",
+    find: find_chain::<Bilocal, WeakUnit>,
+};
+
+pub const XY_CHAIN: Strategy = Strategy {
+    name: "XY-Chain",
+    find: find_chain::<Bivalue, WeakUnit>,
+};
+
+pub const AIC: Strategy = Strategy {
+    name: "AIC",
+    find: find_chain::<Strong, Weak>,
 };
 
 // =============================================================================
@@ -64,13 +79,23 @@ fn find_chain<S: LinkClass, W: LinkClass>(board: &Board) -> StrategyResult {
                         if !eliminations.is_empty() {
                             let chain = backtrack_chain(u, &parents);
 
-                            debug!("chain = {:?}", chain);
-                            debug!("eliminations = {:?}", eliminations);
+                            let mut highlights = Set::new();
+                            let mut highlights2 = Set::new();
+
+                            for (i, &c) in chain.iter().enumerate() {
+                                if i % 2 == 0 {
+                                    highlights.insert(c);
+                                } else {
+                                    highlights2.insert(c);
+                                }
+                            }
 
                             chains.push((
                                 chain,
                                 StrategyResult {
                                     eliminations,
+                                    highlights,
+                                    highlights2,
                                     ..Default::default()
                                 },
                             ));
@@ -94,6 +119,12 @@ fn find_chain<S: LinkClass, W: LinkClass>(board: &Board) -> StrategyResult {
                 }
             }
         }
+    }
+
+    let minimum = chains.into_iter().min_by_key(|(chain, _)| chain.len());
+
+    if let Some(minimum) = minimum {
+        return minimum.1;
     }
 
     StrategyResult::default()

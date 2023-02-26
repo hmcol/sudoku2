@@ -55,8 +55,16 @@ fn find_naked_subset<const N: usize>(board: &Board) -> StrategyResult {
                 continue;
             }
 
+            let highlights = cell_set
+                .iter()
+                .cartesian_product(digit_set.iter())
+                .filter(|(cell, digit)| board.has_note(cell, *digit))
+                .map(|(cell, digit)| (cell, digit).into())
+                .collect();
+
             return StrategyResult {
                 eliminations,
+                highlights,
                 ..Default::default()
             };
         }
