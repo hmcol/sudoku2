@@ -531,7 +531,7 @@ mod fmt {
 fn alternate_remove_last_one() {
     let a: u8 = 0b0011_1000;
 
-    let set = BitSet::<u8, u8>::with_bits(0b1101);
+    let _set = BitSet::<u8, u8>::with_bits(0b1101);
 
     let neg_a = 0u8.wrapping_sub(a);
 

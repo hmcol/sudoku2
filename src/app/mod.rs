@@ -31,6 +31,5 @@ pub fn App() -> Html {
                 </div>
             </ContextProvider<SolverHandle>>
         </div>
-
     }
 }

@@ -1,7 +1,5 @@
 use std::collections::{HashMap, VecDeque};
 
-use log::debug;
-
 use crate::{
     bitset::Set,
     sudoku::{Board, Candidate},

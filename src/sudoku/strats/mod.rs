@@ -65,8 +65,6 @@ pub const STRATEGY_LIST: &[Strategy] = &[
 /// - skyscraper,
 /// - kite,
 /// - turbotFish,
-/// - xChainSimple,
-/// - xChain,
 /// - xyWing,
 /// - xyzWing,
 /// - wWing,
@@ -75,9 +73,6 @@ pub const STRATEGY_LIST: &[Strategy] = &[
 /// - ur4,
 /// - ur5,
 /// - hiddenRectangle,
-/// - bugPlusOne,
-/// - xyChain,
-/// - aic,
 
 // strategy --------------------------------------------------------------------
 
