@@ -1,5 +1,5 @@
 [package]
-name = "yew_app_test"
+name = "sudoku"
 version = "0.1.0"
 edition = "2021"
 
