@@ -40,7 +40,9 @@ pub fn SolverControls() -> Html {
 
     html! {
         <div class={classes!("solver-controls")}>
-            <button onclick={on_reset}>{"reset"}</button>
+            <button 
+                class={classes!("bg-blue-500", "hover:bg-blue-700", "text-white", "font-bold", "py-2", "px-4", "rounded")}
+                onclick={on_reset}>{"reset"}</button>
             <button onclick={on_undo}>{"undo"}</button>
             <button onclick={on_step}>{"step"}</button>
         </div>

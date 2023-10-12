@@ -22,7 +22,7 @@ pub fn BlockComponent(props: &BlockProps) -> Html {
     // render ------------------------------------------------------------------
 
     html! {
-        <div class={classes!("block")}>
+        <div class={classes!("grid", "grid-cols-3", "gap-px", "bg-border")}>
             { for cells }
         </div>
     }

@@ -23,10 +23,10 @@ pub fn App() -> Html {
     // render ------------------------------------------------------------------
 
     html! {
-        <div class={classes!("app")}>
+        <div class={classes!("flex", "bg-orange-200")}>
             <ContextProvider<SolverHandle> context={solver.clone()}>
                 <Grid />
-                <div class={classes!("game-info")}>
+                <div class={classes!("w-1/3", "flex", "flex-col", "items-start", "ml-10")}>
                     <SolverControls />
                 </div>
             </ContextProvider<SolverHandle>>

@@ -15,7 +15,7 @@ pub fn Grid() -> Html {
     });
 
     html! {
-        <div class={classes!("grid")}>
+        <div class={classes!("grid", "grid-cols-3", "gap-0.5", "p-px", "bg-border")}>
             { for blocks }
         </div>
     }

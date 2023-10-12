@@ -34,7 +34,7 @@ pub fn CellComponent(props: &CellProps) -> Html {
     } else {
         false
     }
-    .then_some("lowlight");
+    .then_some("bg-dark");
 
     let on_click = Callback::<MouseEvent>::from(|_| ());
 
@@ -57,7 +57,7 @@ pub fn CellComponent(props: &CellProps) -> Html {
 
     html! {
         <ContextProvider<Cell> context={cell}>
-            <div class={classes!("cell", lowlight)}
+            <div class={classes!("w-8", "h-8", "overflow-hidden", "text-xl", "text-other", "bg-base", "select-none", lowlight)}
                 onclick={on_click}
             >
                 { content }
@@ -84,8 +84,8 @@ fn CellDigit(props: &CellDigitProps) -> Html {
 
     // derive attributes -------------------------------------------------------
 
-    let given = props.is_given.then_some("given");
-    let focus = (solver.focus_digit == Some(digit)).then_some("focus");
+    let given = props.is_given.then_some(classes!("font-bold", "text-light", "bg-dark"));
+    let focus = (solver.focus_digit == Some(digit)).then_some("bg-focus-red");
 
     let on_click: Callback<MouseEvent> = {
         let solver = solver;
@@ -95,7 +95,7 @@ fn CellDigit(props: &CellDigitProps) -> Html {
     // render ------------------------------------------------------------------
 
     html! {
-        <div class={classes!("cell-digit", given, focus)}
+        <div class={classes!("w-full", "h-full", "flex", "items-center", "justify-center", given, focus)}
             onclick={on_click}
         >
             { digit.to_string() }
@@ -119,7 +119,7 @@ fn CellNotes(props: &CellNotesProps) -> Html {
     });
 
     html! {
-        <div class={classes!("cell-notes")}>
+        <div class={classes!("w-full", "h-full", "grid", "grid-cols-3", "grid-rows-3")}>
             { for notes }
         </div>
     }
@@ -151,10 +151,10 @@ fn Note(props: &NoteProps) -> Html {
     let c = Candidate::from_cell_and_digit(cell, props.digit);
 
     let color = solver.result.as_ref().and_then(|result| {
-        let solution = result.solutions.contains(c).then_some("green");
-        let elimination = result.eliminations.contains(c).then_some("red");
-        let highlight = result.highlights.contains(c).then_some("blue");
-        let highlight2 = result.highlights2.contains(c).then_some("yellow");
+        let solution = result.solutions.contains(c).then_some("bg-highlight-green");
+        let elimination = result.eliminations.contains(c).then_some("bg-highlight-red");
+        let highlight = result.highlights.contains(c).then_some("bg-highlight-blue");
+        let highlight2 = result.highlights2.contains(c).then_some("bg-highlight-yellow");
 
         solution.or(elimination).or(highlight).or(highlight2)
     });
@@ -162,7 +162,7 @@ fn Note(props: &NoteProps) -> Html {
     // render ------------------------------------------------------------------
 
     html! {
-        <div class={classes!("note", color)}>
+        <div class={classes!("h-full", "w-full", "flex", "items-center", "justify-center", "overflow-hidden", "text-[40%]", "font-bold", color)}>
             { content }
         </div>
     }
