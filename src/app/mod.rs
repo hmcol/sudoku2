@@ -23,7 +23,7 @@ pub fn App() -> Html {
     // render ------------------------------------------------------------------
 
     html! {
-        <div class={classes!("flex", "bg-orange-200")}>
+        <div class={classes!("flex", "bg-base")}>
             <ContextProvider<SolverHandle> context={solver.clone()}>
                 <Grid />
                 <div class={classes!("w-1/3", "flex", "flex-col", "items-start", "ml-10")}>

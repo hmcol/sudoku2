@@ -38,13 +38,13 @@ pub fn SolverControls() -> Html {
 
     // render ------------------------------------------------------------------
 
+    let button_classes = classes!("bg-light", "hover:bg-dark", "hover:text-light", "font-bold", "py-1", "px-2");
+
     html! {
         <div class={classes!("solver-controls")}>
-            <button 
-                class={classes!("bg-blue-500", "hover:bg-blue-700", "text-white", "font-bold", "py-2", "px-4", "rounded")}
-                onclick={on_reset}>{"reset"}</button>
-            <button onclick={on_undo}>{"undo"}</button>
-            <button onclick={on_step}>{"step"}</button>
+            <button class={button_classes.clone()} onclick={on_reset}>{"reset"}</button>
+            <button class={button_classes.clone()} onclick={on_undo}>{"undo"}</button>
+            <button class={button_classes.clone()} onclick={on_step}>{"step"}</button>
         </div>
     }
 }
